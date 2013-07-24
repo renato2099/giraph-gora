@@ -1,0 +1,1178 @@
+Giraph Change Log
+
+Release 1.1.0 - unreleased
+  GIRAPH-709: More flexible Jython script loading (nitay)
+
+  GIRAPH-708: Factories for creation of all IVEM types (nitay)
+
+  GIRAPH-710: Define zookeeper version in a property to allow build time
+  override (apurtell via nitay)
+
+  GIRAPH-705: Type converters and giraph-hive cleanup (nitay)
+
+  GIRAPH-704: Specialized message stores (majakabiljo)
+
+  GIRAPH-703: create an appropriate way to generate the options.html page using maven.
+  (armax00 via claudio)
+
+  GIRAPH-702: Fix multithreaded output (majakabiljo)
+
+  GIRAPH-676: A short tutorial on getting started with Giraph (boshmaf via claudio)
+
+  GIRAPH-698: Expose Computation to a user (aching)
+
+  GIRAPH-311: Master halting in superstep 0 is ignored by workers (majakabiljo)
+
+  GIRAPH-688: Make sure Giraph builds against all compatible YARN-enabled Hadoop versions,
+  warns if none set, works w/new 1.1.0 line (ereisman)
+
+  GIRAPH-693: Giraph-Hive check user code as soon as possible (nitay)
+
+  GIRAPH-697: Clean up message stores (majakabiljo)
+
+  GIRAPH-696: Should be able to spill giraph metrics to a specified 
+  directory on HDFS (claudio)
+
+  GIRAPH-695: Add getCombiner and getComputation methods for 
+  MasterCompute (aching)
+
+  GIRAPH-623: Website Documentation: table of parameters (armax00 via nitay)
+
+  GIRAPH-694: Setting configuration in GiraphConfiguration causes 
+  non thread safe copies (aching)
+
+  GIRAPH-683: Jython for Computation (nitay)
+
+  GIRAPH-673: Input superstep should support aggregators like any 
+  other superstep (Bingjing via aching)
+
+  GIRAPH-686: DiskBackedPartitionStore does not saveVertex after edges 
+  are loaded (claudio)
+
+  GIRAPH-681: Graphviz Output Format (nitay)
+
+  GIRAPH-468: Make Vertex an Interface (nitay)
+
+  GIRAPH-667: all workers suspended at 'saveVertices' when use 
+  out of core (claudio)
+
+  GIRAPH-670: [easy] Example Max Computation (nitay)
+
+  GIRAPH-675: Mutable edge iterator gets corrupted by calling
+  vertex.getNumEdges() during iteration (apresta)
+
+  GIRAPH-512: JavaDoc warnings (emre.aladag via nitay)
+
+  GIRAPH-620: Website Documentation: How to use Hive I/O with Giraph (nitay)
+
+  GIRAPH-667: Decouple Vertex data and Computation, make Computation
+  and Combiner classes switchable (majakabiljo)
+
+  GIRAPH-608: Spelling error in Combiner.java (Michael Aro via aching)
+
+  GIRAPH-666: Netty execs threads and metrics threads don't get 
+  cleaned up properly (aching)
+
+  GIRAPH-665: Reduce ZooKeeper output in tests by changing log level from 
+  INFO to ERROR (aching)
+
+  GIRAPH-664: Bump HiveIO dep - fixes tests with hadoop facebook
+  (nitayj via majakabiljo)
+
+  GIRAPH-622: Website Documentation: Out-of-core (claudio)
+
+  GIRAPH-659: giraph-hive tests all fail (majakabiljo)
+
+  GIRAPH-663: Fix HiveIO metastore host setting (nitay)
+
+  GIRAPH-661: Munge symbols helper (nitay)
+
+  GIRAPH-662: Incubator release should point to archived (aching)
+
+  GIRAPH-655: Fix Hive Build for Hadoop 2.0.0 (nitay)
+
+  GIRAPH-660: Move the snapshot to 1.1.0 and also add a releases page for 
+  the 1.0 release (aching)
+
+  GIRAPH-560: Input filtering (nitay)
+
+  GIRAPH-621: Website Documentation: Basic Design Document (aching)
+
+  GIRAPH-658: Remove final modifier from SimpleHiveToEdge.initializeRecords
+  (majakabiljo)
+
+  GIRAPH-656: Input from multiple tables doesn't work with multithreading
+  (majakabiljo)
+
+  GIRAPH-657: Remove unused reuseIncomingEdgeObjects option (apresta)
+
+  GIRAPH-592: YourKit profiler (nitay)
+
+  GIRAPH-618: Website Documentation: Aggregators (and sharded aggregators)
+  (majakabiljo)
+
+  GIRAPH-651: giraph-hive tests (nitay)
+
+  GIRAPH-639: Add support for multiple Vertex/Edge inputs (majakabiljo)
+
+  GIRAPH-653: Hadoop_non_secure broken (majakabiljo)
+
+  GIRAPH-650: Exception in GiraphConfiguration initialization (majakabiljo)
+
+  GIRAPH-648: Allow IO formats to add parameters to Configuration (majakabiljo)
+
+  GIRAPH-635: Website Documentation: Missing presentations (ssc)
+
+  GIRAPH-647: Update HiveIO to 0.8 (nitay)
+
+  GIRAPH-624: ByteArrayPartition reports 0 aggregate edges when used with 
+  DiskBackedPartitionStore (claudio)
+
+  GIRAPH-636: Initialize compute OutEdges directly from input OutEdges
+  (majakabiljo)
+
+  GIRAPH-645: Specify maven deploy plugin version (nitay)
+
+  GIRAPH-643: Maven Release settings more friendly to Git (nitay)
+  
+Release 1.0.0 - 2013-04-15
+  GIRAPH-633: Rename VertexEdges to OutEdges (apresta)
+
+  GIRAPH-634: InternalGiraphRunner with TestGraph is broken (majakabiljo)
+
+  GIRAPH-617: Website Documentation: Vertex/Edge Input/Output (apresta)
+
+  GIRAPH-634: InternalGiraphRunner with TestGraph is broken (majakabiljo)
+
+  GIRAPH-630: Convergence detection broken in
+  o.a.g.examples.PageRankVertex. (ssc via aching)
+
+  GIRAPH-627: YARN build profile is broken. (rvs via aching)
+
+  GIRAPH-628: Can't build Giraph without git due to mavanagaiata not
+  configured right (aching).
+
+  GIRAPH-595: InternalVertexRunner.run() should take GiraphConfiguration, not GiraphClasses
+  (nitay via apresta)
+
+  GIRAPH-364: Clean up directories created by test suite (majakabiljo)
+
+  GIRAPH-614: SplitMasterWorker=false is broken (majakabiljo)
+
+  GIRAPH-616: Decouple vertices and edges in DiskBackedPartitionStore and avoid writing 
+  back edges when the algorithm does not change topology. (claudio)
+
+  GIRAPH-613: Remove Writable from the interfaces implemented by Vertex (claudio)
+
+  GIRAPH-543: Fix PageRankBenchmark and make WeightedPageRankBenchmark (majakabiljo)
+
+  GIRAPH-615: Add support for multithreaded output (majakabiljo)
+
+  GIRAPH-612: Improve website for upcoming release (aching)
+
+  GIRAPH-527: readVertexInputSplit is always reporting 0 vertices and 0 edges (nitay)
+
+  GIRAPH-611: Vertex/EdgeReaderWrapper should configure inner reader (majakabiljo)
+
+  GIRAPH-609: More information on runtime exceptions for Callables (aching)
+
+  GIRAPH-607: Hive IO bump (nitay)
+
+  GIRAPH-564: Input/output formats and readers/writers should implement
+  ImmutableClassesGiraphConfigurable (aching)
+
+  GIRAPH-604: Clean up benchmarks (majakabiljo)
+
+  GIRAPH-605: Worker crashes if its vertices have no edges when using edge input (majakabiljo)
+
+  GIRAPH-603: AbstractVertexToHive doesn't need message type (majakabiljo)
+
+  GIRAPH-589: Remove unnecessary generics from input formats (majakabiljo)
+
+  GIRAPH-536: Clean up configuration options (apresta)
+
+  GIRAPH-551: Fix log message at the end of edge input (apresta)
+
+  GIRAPH-555: Fix log message on generated input splits (apresta)
+
+  GIRAPH-602: HiveGiraphRunner should allow disabling/choosing of input 
+  formats at runtime (aching)
+
+  GIRAPH-13: Port Giraph to YARN (ereisman)
+
+  GIRAPH-600: Create an option to do output during computation (majakabiljo)
+
+  GIRAPH-599: Hive IO dependency issues with some Hadoop profiles (nitay via majakabiljo)
+
+  GIRAPH-577: Create a testing framework that doesn't require I/O formats (ves via apresta)
+
+  GIRAPH-593: Update Hive IO performance improvements (nitay)
+
+  GIRAPH-594: auto set reusing objects (nitay)
+
+  GIRAPH-597: Don't reuse vertex by default in SimpleHiveToVertex (majakabiljo)
+
+  GIRAPH-588: More flexible Hive input (majakabiljo)
+
+  GIRAPH-587: Refactor configuration options (nitay)
+
+  GIRAPH-581: More flexible Hive output (majakabiljo)
+
+  GIRAPH-579: Make it possible to use different out-edges data structures
+  for input and computation (apresta)
+
+  GIRAPH-582: Create a generic option for determining the number of
+  supersteps that a job runs for (aching)
+
+  GIRAPH-586: Customizable default vertex value (apresta)
+
+  GIRAPH-580: NPE in HiveGiraphRunner when the vertex output format is
+  not defined (aching)
+
+  GIRAPH-510: Remove HBase Cruft (kelarini via nitay)
+
+  GIRAPH-566: Make option for aggregators to be configurable (majakabiljo)
+
+  GIRAPH-575: update hive-io (nitay)
+
+  GIRAPH-576: BspServiceMaster.failureCleanup() shouldn't pass null in
+              observers' applicationFailed() method (jgarms via nitay)
+
+  GIRAPH-547: Allow in-place modification of edges (apresta)
+
+  GIRAPH-537: Fix log messages produced by aggregators (majakabiljo)
+
+  GIRAPH-480: Add convergence detection to org.apache.giraph.examples.RandomWalkVertex (ssc)
+
+  GIRAPH-565: Make an easy way to gather some logs from workers on master (majakabiljo)
+
+  GIRAPH-559: use hive-io-experimental release (nitay)
+
+  GIRAPH-562: Implement getConf/setConf in AbstractHive classes (majakabiljo)
+
+  GIRAPH-561: Only print vertex/edge input classes if not null (aching)
+
+  GIRAPH-554: Set PartitionContext in InternalVertexRunner (majakabiljo)
+
+  GIRAPH-559: Giraph build breaks (nitay)
+
+  GIRAPH-550: HiveVertexReader should call initialize, not users (nitay)
+
+  GIRAPH-523: MasterObserver should pass in superstep number (gaurav.menghani via nitay)
+
+  GIRAPH-556: Race condition in EdgeStore (apresta)
+
+  GIRAPH-528: Decouple vertex implementation from edge storage (apresta)
+
+  GIRAPH-553: Cleanup HCatalogVertexOutputFormat (majakabiljo)
+
+  GIRAPH-545: Improve Facebook Hadoop dependency (nitay)
+
+  GIRAPH-541: Log before observers (nitay)
+
+  GIRAPH-535: Range-partitioning and edge locality benchmark (apresta)
+
+  GIRAPH-539: When having open requests log which workers are they sent to (majakabiljo)
+
+  GIRAPH-530: GiraphInputFormat#getSplits() should be aware of multithreaded input (apresta)
+
+  GIRAPH-532: Give an explanation when trying to use unregistered aggregators (majakabiljo)
+
+  GIRAPH-453: Pure Hive I/O (nitay)
+
+  GIRAPH-526: HiveGiraphRunner - bug with setting database name (majakabiljo)
+
+  GIRAPH-518: Support Hadoop-2.0.3-alpha release on Giraph (ereisman)
+
+  GIRAPH-525: Add PartitionClass to the ConfigurationUtils (claudio)
+
+  GIRAPH-514: DiskBackedMessageStores should take advantage of machines with multiple disks (claudio)
+  
+  GIRAPH-520: ReverseEdgeDuplicator (nitay)
+
+  GIRAPH-522: JMap Dumper (nitay)
+
+  GIRAPH-517: Use stable hcatalog 0.5.0-incubating (nitay)
+
+  GIRAPH-503: Refactor platform-independent CLI argument parsing in GiraphRunner into a separate class (ereisman)
+
+  GIRAPH-519: EdgeFactory (nitay)
+
+  GIRAPH-515: More efficient and flexible edge-based input (apresta)
+
+  GIRAPH-516: out-of-core messages dies for ArrayIndexOutOfBoundsException when 
+  running out-of-core messages in UnsafeByteArrayOutputStream (majakabiljo)
+
+  GIRAPH-513: OnDiskPartitionStore should take advantage of multiple disks (claudio)
+
+  GIRAPH-511: DNS interface and nameserver for multi-interface machines (claudio)
+
+  GIRAPH-470 (tavoaqp via nitay)
+
+  GIRAPH-504: Create PartitionContext (majakabiljo)
+
+  GIRAPH-499: Giraph should not reserve minimum reduce slot memory 1024 since we never use it (ereisman)
+
+  GIRAPH-508: Increase the limit on the number of partitions (majakabiljo)
+
+  GIRAPH-509: Factor out AggregatorUsage (majakabiljo)
+
+  GIRAPH-505: Metrics Updates (nitay)
+
+  GIRAPH-506: Concurrency issue - response can arrive before request is added to the outstanding map (majakabiljo)
+
+  GIRAPH-501: WorkerObserver (nitay)
+
+  GIRAPH-502: In PageRankBenchmark, remove unneeded handling of -t 2 (ekoontz)
+
+  GIRAPH-500: Refactor job launch code out of graph package and into job package (ereisman)
+
+  GIRAPH-493: Remove EdgeWithSource (nitay)
+
+  GIRAPH-429: Number of input split threads set to 1 less than necessary (majakabiljo)
+  
+  GIRAPH-498: We should check input splits status from zookeeeper once per worker, 
+  not once per split thread (majakabiljo)
+
+  GIRAPH-497: Limiting number of open requests doesn't work with multithreading (majakabiljo via ereisman)
+
+  GIRAPH-461: Convert static assignment of in-memory partitions with LRU cache (claudio)
+
+  GIRAPH-494: Make Edge an interface (nitay)
+
+  GIRAPH-492: Saving vertices has no status report, making it hard to 
+  find DFS issues (aching)
+
+  GIRAPH-312: Giraph needs an admin script (ereisman)
+
+  GIRAPH-469: Refactor GraphMapper (ereisman)
+
+  GIRAPH-491: Observer for job lifecycle (nitay)
+
+  GIRAPH-490: Constants for GiraphStats / GiraphTimers (nitay)
+
+  GIRAPH-488: ArrayOutOfBoundsException in org.apache.giraph.worker.InputSplitPathOrganizer (ereisman)
+
+  GIRAPH-418: Create maven profile for CDH 4.1.2 (ekoontz)
+
+  GIRAPH-487: VertexInputPath in GiraphRunner refers to EdgeInputPath (taguan via apresta)
+
+  GIRAPH-481: mvn compile error when building jar file - Error with Accumulo (tavoaqp via nitay)
+
+  GIRAPH-472: Refactor MapFunctions enum to be more general (ereisman)
+
+  GIRAPH-254: Constant Variable name misspelled in HashMasterPartitioner.java (Gustavo Salazar Torres via ereisman)
+
+  GIRAPH-431: Support edge and vertex value input formats in GiraphRunner (apresta)
+
+  GIRAPH-477: Fetching locality info in InputSplitPathOrganizer causes jobs to hang (apresta via ereisman)
+
+  GIRAPH-459: Group Vertex Mutations by Partition ID (claudio)
+
+  GIRAPH-473: InputSplitPathOrganizer should be aware of multiple threads (apresta via ereisman)
+
+  GIRAPH-478: Bring back jar-with-deps for giraph-hcatalog (nitay)
+
+  GIRAPH-474: Add an oprtion not to use direct byte buffers. (majakabiljo via ereisman)
+
+  GIRAPH-476: SequenceFileVertexOutputFormat (nitay)
+
+  GIRAPH-409: Refactor / cleanups (nitay)
+
+  GIRAPH-465: MapFunctions cleanup (nitay)
+
+  GIRAPH-464: MasterObserver#applicationFailed callback (nitay)
+
+  GIRAPH-458: split formats module into accumulo,hbase,hcatalog (nitay)
+
+  GIRAPH-463: Create VertexResolver only once (apresta)
+
+  GIRAPH-457: update module names (nitay)
+
+  GIRAPH-455: Add meta information to built jars (nitay)
+
+  GIRAPH-456: Log where master is on every host (nitay)
+
+  GIRAPH-141: Multigraph support in Giraph (apresta)
+        
+  GIRAPH-452: Fix hcatalog jar (nitay)
+
+  GIRAPH-450: post-review not working after switch to git (nitay)
+
+  GIRAPH-449: License header missing from for-each-profile.sh (apresta)
+
+  GIRAPH-447: Clean up GiraphConfiguration related things (nitay)
+
+  GIRAPH-445: Max message request size in bytes, initialize buffers to 
+  expected size (majakabiljo)
+
+  GIRAPH-444: Cleanup VertexResolver (nitay)
+
+  GIRAPH-446: Add a proper timeout for waiting for workers to join a
+  superstep. (aching)
+
+  GIRAPH-443: Properly size netty buffers when encoding requests (majakabiljo)
+
+  GIRAPH-395: No need to make HashWorkerPartitioner thread-safe. (aching)
+
+  GIRAPH-441: Keep track of connected channels in NettyServer (majakabiljo)
+
+  GIRAPH-440: ProgressableUtils - TimeoutException from future.get shouldn't 
+  be rethrown (majakabiljo)
+
+  GIRAPH-438: When checkpointing is disable, fast fail (aching)
+
+  GIRAPH-437: Missing progress calls when stopping Netty server (majakabiljo)
+
+  GIRAPH-439: Fix naming of input superstep counter (apresta)
+
+  GIRAPH-424: Fix hashCode modulo computation (majakabiljo)
+
+  GIRAPH-396: HcatalogVertexInputFormat outputs a bit too often. (aching)
+
+  GIRAPH-435: Serialize server messages for memory and less GC. (aching)
+
+  GIRAPH-420: build formats in profiles where it works. (nitay)
+
+  GIRAPH-421: Aggregate metrics up to master. (nitay)
+
+  GIRAPH-434: Remove unused InputSplitPathOrganizer from BspServiceWorker (apresta via ereisman)
+
+  GIRAPH-405: Edge-based input from HCatalog (apresta)
+
+  GIRAPH-433: Vertex#initialize() shouldn't be called with null edges (apresta)
+
+  GIRAPH-416: MasterObserver for user post-application customization (nitay)
+
+  GIRAPH-427: Add committer information for Nitay Joffe to pom.xml (nitay)
+
+  GIRAPH-417: Serialize the graph/message cache into byte[] for
+  improving memory usage and compute speed. (aching)
+
+  GIRAPH-386: ClassCastException when giraph.SplitMasterWorker=false
+  (majakabiljo)
+
+  GIRAPH-423: Allow overriding addEdge (apresta)
+
+  GIRAPH-422: Setting the log level of the root logger to the same level
+  can cause issues in Hadoop. (aching)
+
+  GIRAPH-415: Refactor / cleanup Hadoop Counters (nitay via majakabiljo)
+
+  GIRAPH-413: Make building Facebook profile easier. (nitay via aching)
+
+  GIRAPH-407: Metrics Update (nitay via apresta)
+
+  GIRAPH-404: More SendMessageCache improvements (majakabiljo)
+
+  GIRAPH-412: Checkstyle error from Giraph-403 (majakabiljo) 
+
+  GIRAPH-403: GraphMapper.notiftySentMessages need to be thread-safe 
+  (nitay via majakabiljo)
+
+  GIRAPH-397: We should have copies of aggregators per thread
+  to avoid synchronizing on aggregate() (majakabiljo)
+
+  GIRAPH-406: Enforce partition ids in [0, n-1] (majakabiljo)
+
+  GIRAPH-402: slf4j dependency bug (nitay via apresta)
+
+  GIRAPH-401: Metrics should be disabled by default (apresta)
+
+  GIRAPH-400: Refactoring broke
+  TestTextDoubleDoubleAdjacencyListVertexInputFormat (apresta)
+
+  GIRAPH-155: Allow creation of graph by adding edges that span
+  multiple workers (apresta)
+
+  GIRAPH-398: Missing a dependency (nitay via majakabiljo)
+
+  GIRAPH-394: mapreduce.job.user.classpath.first hadoop option typo
+  (nitay via aching)
+
+  GIRAPH-232: Add metrics system into Giraph. (nitay via aching)
+
+  GIRAPH-393: Number of input split threads should always be >= 1
+  (aching)
+
+  GIRAPH-388: Improve the way we keep outgoing messages (majakabiljo
+  via aching).
+
+  GIRAPH-389: Multithreading should intelligently allocate the thread
+  pools. (aching via ereisman)
+
+  GIRAPH-273: Aggregators shouldn't use Zookeeper (majakabiljo)
+
+  GIRAPH-376: Facebook Hadoop profile broken. (nitay via aching)
+
+  GIRAPH-387: GiraphRunner's better handling of configuration property
+  arguments. (netj via aching)
+
+  GIRAPH-385: Script for running on all profiles. (nitay via aching)
+
+  GIRAPH-384: Remove duplicate BspCase in giraph-formats-contrib (and
+  fix GIRAPH-382 breaking the build). (aching)
+
+  GIRAPH-382: ZooKeeperExt should handle ConnectionLossException by
+  retrying. (aching)
+
+  GIRAPH-381: Ensure we get the original exception from
+  GraphMapper#run(). (aching)
+
+  GIRAPH-379: HiveGiraphRunner should have a skipOutput option for
+  testing (aching)
+
+  GIRAPH-380: Hadoop_non_secure is broken (majakabiljo)
+
+  GIRAPH-372: Write worker addresses to Zookeeper; 
+  move addresses and resolution to NettyClient (majakabiljo)
+
+  GIRAPH-373: RandomMessageBenchmark is broken (majakabiljo).
+
+  GIRAPH-374: Multithreading in input split loading and compute (aching).
+
+  GIRAPH-375: Cleaner MutableVertex API (apresta)
+
+  GIRAPH-371: Replace BspUtils in giraph-formats-contrib for
+  speed. (aching)
+
+  GIRAPH-369: bin/giraph broken (Nitay Joffe via ereisman)
+
+  GIRAPH-368: HBase Vertex I/O formats handle setConf() internally
+  (bfem via ereisman)
+
+  GIRAPH-367: Expose WorkerInfo to clients (Nitay Joffe via ereisman)
+
+  GIRAPH-370: AccumuloVertexOutputFormat public visibility for
+  TABLE_NAME. (bfem via aching)
+
+  GIRAPH-366: TestGraphPartitioner should use getTempPath() everywhere
+
+  GIRAPH-346: Top Level POM. (nitay via aching)
+
+  GIRAPH-200: Remove hadoop RPC and keep just netty. (apresta)
+
+  GIRAPH-363: Fix hadoop_0.23 profile broken by GIRAPH-211 (ekoontz)
+
+  GIRAPH-211: Add secure authentication to Netty IPC (ekoontz)
+
+  GIRAPH-361: Hive output partition parsing is broken (nitay via apresta)
+
+  GIRAPH-360: Keep track of the task id in ChannelRotater to send
+  requests without knowing the worker id upfront (aching via
+  ekoontz)
+
+  GIRAPH-307: InputSplit list can be long with many workers 
+  (and locality info) and should not be re-created every time a 
+  worker calls reserveInputSplit() (ereisman via majakabiljo)
+
+  GIRAPH-358: Rename package format->io in giraph-formats-contrib for
+  consistency with main package. (apresta via aching)
+
+  GIRAPH-350: HBaseVertex i/o formats are not being injected with
+  Configuration via Configurable interface. (bfem via aching)
+
+  GIRAPH-356: Improve ZooKeeper issues. (aching)
+
+  GIRAPH-342: Recursive ZooKeeper calls should call progress, dynamic 
+  ZooKeeper can skip delete (aching via majakabiljo)
+
+  GIRAPH-351: Fail job early when there is no input (aching via ereisman)
+
+  GIRAPH-212: Security is busted since GIRAPH-168. (ekoontz via
+  aching)
+
+  GIRAPH-315: giraph-site.xml isn't read on time. (majakabiljo via
+  aching)
+
+  GIRAPH-325: One more progress call. (majakabiljo via aching)
+
+  GIRAPH-328: Outgoing messages from current superstep should be
+  grouped at the sender by owning worker, not by partition. (Eli
+  Reisman via aching)
+
+  GIRAPH-293: Should aggregators be checkpointed? (majakabiljo via
+  aching)
+
+  GIRAPH-355: Partition.readFields crashes. (maja via aching)
+
+  GIRAPH-354: Giraph Formats should use hcatalog-core. (nitayj via
+  aching)
+
+  GIRAPH-353: Received metrics are not thread-safe (aching via ereisman)
+
+  GIRAPH-326: Writing input splits to ZooKeeper in parallel (maja)
+
+  GIRAPH-335: Add committer information for Maja Kabiljo to pom.xml
+  (maja)
+
+  GIRAPH-341: Improved log messages (timing) and upgraded junit to 4.8
+  for better tests. (aching)
+  
+  GIRAPH-352: Loaded vertices don't have their configuration set.
+  (aching)
+  
+  GIRAPH-343: Use published hcatalog jars. (nitayj via aching)
+
+  GIRAPH-338: More Rat Ignores (Nitay Joffe via ereisman)
+
+  GIRAPH-347: GiraphConfiguration broke hcatalog build
+  (Nitay Joffe via ereisman)
+
+  GIRAPH-340: Added client/server ExecutionHandlers to Netty to avoid
+  and added WrappedAdaptiveReceiveBufferSizePredictorFactory to
+  debug/predict the size of the incoming messages. (aching)
+
+  GIRAPH-274: Jobs still failing due to tasks timeout during
+  INPUT_SUPERSTEP. (nitayj via aching)
+
+  GIRAPH-337: Make a specific Giraph configuration for Class caching
+  and specific Giraph configuration. (aching)
+
+  GIRAPH-334: Bugfix HCatalog Hive profile. (nitayj via aching)
+
+  GIRAPH-93: Hive input / output format. (nitayj via aching)
+
+  GIRAPH-277: Text Vertex Input/Output Format base classes overhaul.
+  (nitayj via aching)
+
+  GIRAPH-331: ReviewBoard post-review config. (nitayj via aching)
+
+  GIRAPH-332: Duplicate unnecessary info in giraph-formats-contrib
+  compile.xml. (nitay via aching)
+
+  GIRAPH-330: Ignores file for Git. (nitay via aching)
+
+  GIRAPH-327: Timesout values in BspServiceMaster.barrierOnWorkerList
+  (majakabiljo via ereisman)
+
+  GIRAPH-323: Check if requests are done before calling wait (majakabiljo
+  via ereisman)
+
+  GIRAPH-298: Reduce timeout for TestAutoCheckpoint. (majakabiljo via
+  aching)
+	
+  GIRAPH-324: Add option to use combiner in benchmarks. (apresta via
+  aching)
+
+  GIRAPH-191: Random walks on graphs (Gianmarco De Francisci Morales
+  via ereisman)
+
+  GIRAPH-320: Provide a runtime configuration for choosing the
+  log level (aching via ereisman)
+
+  GIRAPH-321: Divide by 0 exception. (ereisman via aching)
+
+  GIRAPH-316: Add test-patch.sh for precommit test using Jenkins.
+  (hyunsik via ereisman)
+
+  GIRAPH-319: Receiving two responses for a request causes an
+  exception. (apresta via aching)
+
+  GIRAPH-291: PredicateLock should have a constructor to take in a
+  custom waiting time and additional testing (aching via ereisman)
+
+  GIRAPH-318: New Iterator in LocalityInfoSorter is not working.
+  (Eli Reisman via apresta)
+
+  GIRAPH-317: Add subpackages to comm (Maja Kabiljo via ereisman)
+
+  GIRAPH-301: InputSplit Reservations are clumping, leaving many workers
+  asleep while other process too many splits and get overloaded.
+  (Eli Reisman via apresta)
+
+  GIRAPH-313: Open Netty client and server on master. (majakabiljo via
+  aching)
+
+  GIRAPH-249: Move part of the graph out-of-core when memory is low
+  (apresta via aching).
+
+  GIRAPH-306: Netty requests should be reliable and implement exactly
+  once semantics. (aching)
+
+  GIRAPH-309: Message count is wrong. (aching via apresta)
+
+  GIRAPH-246: Periodic worker calls to context.progress() will prevent
+  timeout on some Hadoop clusters during barrier waits. (Eli Reisman
+  via aching)
+
+  GIRAPH-295: Additional Example Algorithm to compute Outdegree and
+  Indegree. (Sean Choi via aching)
+
+  GIRAPH-305: Adding an argument to GiraphRunner for Master Compute
+  classes. (Sean Choi via aching)
+
+  GIRAPH-302: Thread safety issue with sending partitions around.
+  (aching via apresta)
+
+  GIRAPH-303: Regression: cleanup phase happens earlier than it
+  should. (majakabiljo via apresta)
+
+  GIRAPH-278: Website still tries to load incubator logo (ekoontz)
+
+  GIRAPH-300) Improve netty reliability with retrying failed
+  connections, tracking requests, thread-safe hash partitioning
+  (aching via apresta).
+
+  GIRAPH-296: TotalNumVertices and TotalNumEdges are not saved in
+  checkpoint.  (majakabiljo via apresta)
+
+  GIRAPH-297: Checkpointing on master is done one superstep later
+  (majakabiljo via aching).
+
+  GIRAPH-275: Restore data locality to workers reading InputSplits
+  where possible without querying NameNode, ZooKeeper. (Eli Reisman
+  via jghoman)
+  
+  GIRAPH-258: Check type compatibility before submitting job. 
+  (Eli Reisman via jghoman)
+
+  GIRAPH-218: Consolidate all I/O Format classes under one roof in
+  lib/ directory.  (Eli Reisman via jghoman)
+
+  GIRAPH-259: TestBspBasic.testBspPageRank is broken (majakabiljo via
+  apresta)
+
+  GIRAPH-256: Partitioning outgoing graph data during INPUT_SUPERSTEP
+  by # of vertices results in wide variance in RPC message sizes. (Eli
+  Reisman via jghoman)
+  
+  GIRAPH-290: Add committer information for Alessandro Presta to pom.xml
+  (apresta)
+
+  GIRAPH-286. Remove DISCLAIMER from source tree. (jghoman)
+
+  GIRAPH-287: Add option to limit the number of open requests.
+  (Maja Kabiljo via jghoman)
+
+  GIRAPH-262: Netty optimization to handle requests locally whenever
+  possible. (aching)
+
+  GIRAPH-288: Bandwidth tracking - subset of GIRAPH-262. (aching)
+
+  GIRAPH-289: Add thread and channel pooling to NettyClient and
+  NettyServer. (ekoontz via aching)
+
+  GIRAPH-276: Fix broken tests in pseudo-distributed mode.
+  (Alessandro Presta via jghoman)
+
+  GIRAPH-281: Add options to control Netty's per-channel receive and
+  send buffer sizes (ekoontz via aching).
+
+  GIRAPH-228: SimpleTriangleClosingVertex should not use ArrayWritable
+  for a vertex value. (Eli Reisman via jghoman)
+
+  GIRAPH-209: Include munge version in artifact name. 
+  (Eli Reisman via jghoman)
+  
+  GIRAPH-280: Add IntelliJ-generated *.iml and *.ipr files to Apache
+  Rat's <exclude> list. (ekoontz via aching).
+
+  GIRAPH-45: Improve the way to keep outgoing messages (majakabiljo
+  via aching).
+ 
+  GIRAPH-271: Regression in imports in CommunicationsInterface (netj
+  via aching).
+
+  GIRAPH-267: Jobs can get killed for not reporting status during
+  INPUT SUPERSTEP (netj via aching).
+
+  GIRAPH-266: Average aggregators don't calculate real average
+  (majakabiljo via aching).
+
+  GIRAPH-244: Vertex API redesign (apresta via aching).
+
+  GIRAPH-236: Add FindBugs to maven build (Jan van der Lugt via
+  aching).
+
+  GIRAPH-224: Netty server-side combiner (apresta via aching).
+
+  GIRAPH-251: Allow to access the distributed cache from Vertexes and
+  WorkerContext (Gianmarco De Francisci Morales via aching).
+
+  GIRAPH-261: Rename isQuiet variable. (Gianmarco De Francisci Morales 
+  via jghoman).
+
+  GIRAPH-248: Generic IdentityVertex for IO testing (Sean Choi via
+  aching).
+
+  GIRAPH-222: GIRAPH-222 giraph-formats-contrib needs a README (bfem
+  via aching).
+
+  GIRAPH-257: TestBspBasic.testBspMasterCompute is broken (majakabiljo
+  via aching).
+
+  GIRAPH-81: Create annotations on provided algorithms for cli
+  (majakabiljo via aching).
+
+  GIRAPH-242: HashMapVertex stores neighbor ids twice.
+  (Alessandro Presta via hyunsik)
+
+  GIRAPH-241: Small typos in var names in NettyWorkerClient.java 
+  (Eli Reisman via hyunsik)
+
+  GIRAPH-239: IntIntNullIntVertex doesn't save halted state (apresta
+  via aching)
+
+  GIRAPH-238: BasicVertex should have default Writable implementation
+  (apresta via aching)
+
+  GIRAPH-233: Small errors found by FindBugs (Jan van der Lugt via hyunsik)
+  
+  GIRAPH-216: NullWritable as VertexData, EdgeData or MessageData
+  should be allowed.  (Jan van der Lugt via jghoman)
+
+  GIRAPH-221: Make iteration over edges more explicit (apresta via aching).
+
+  GIRAPH-225: Guava version in POM.XML is really old. Updated to version 12.0.
+  (Eli Reisman via hyunsik)
+
+  GIRAPH-223: Need to put Giraph jar on classpath, post-GIRAPH-205.
+  (Eli Reisman via jghoman)
+
+  GIRAPH-213: NettyClient.stop() could deadlock according to netty.io docs.
+  (Eli Reisman via jghoman)
+
+  GIRAPH-127: Extending the API with a master.compute() function.
+  (Jan van der Lugt via jghoman)
+
+  GIRAPH-220: Default implementation of BasicVertex#sendMsgToAllEdges().
+  (Alessandro Presta via jghoman)
+
+  GIRAPH-217: Add SimpleTriangleClosingVertex to Giraph examples. 
+  (Eli Reisman via jghoman)  
+
+  GIRAPH-219: pom in giraph-formats-contrib should have groupId
+  'org.apache.giraph'.  (Brian Femiano via jghoman)
+
+  GIRAPH-215: Update site to use Giraph logo and remove 'incubator'
+  text (ekoontz)
+
+  GIRAPH-205: Move Giraph jar to root level of tar.gz. 
+  (Roman Shaposhnik via jghoman)
+  
+  GIRAPH-206: Break out SimpleShortestPathVertex. (Eli Reisman via jghoman)
+
+  GIRAPH-210: Hadoop 1.0 profile has no activation. (jghoman)
+ 
+  GIRAPH-192: Move aggregators to a separate sub-package. 
+  (Jan van der Lugt via jghoman)
+  
+  GIRAPH-208: LocalTestMode's zookeeper directory is not being cleaned up 
+  after job runs (ekoontz)
+
+  GIRAPH-194: Fix up URLs in the pom. (omalley)
+
+  GIRAPH-153: HBase/Accumulo Input and Output formats. (bfem via aching)
+
+  GIRAPH-187: SequenceFileVertexInputFormat has WritableComparable<I>
+  as a bounded type for I. (roman4asf via aching)
+
+  GIRAPH-20: Move temporary test files from the project directory. (ssc)
+
+  GIRAPH-37: Implement Netty-backed IPC. (aching)
+
+  GIRAPH-184: Upgrade to junit4. (Devaraj K via jghoman)
+
+  GIRAPH-176: BasicRPCCommunications has unnecessary cast of Vertex.
+  (Devaraj K via jghoman)
+
+  GIRAPH-175: Replace manual array copy to utility method call.
+  (Devaraj K via jghoman)
+
+  GIRAPH-181: Add Hadoop 1.0 profile to pom.xml. (ekoontz via aching)
+
+  GIRAPH-183: Add Claudio's FOSDEM presentation (slides and video) 
+  to the site. (claudio)
+
+  GIRAPH-179: BspServiceMaster's PathFilter can be simplified.
+  (Devaraj K via jghoman)
+
+  GIRAPH-177: SimplePageRankVertex has two redundant casts.
+  (Devaraj K via jghoman)
+
+  GIRAPH-168: Simplify munge directive usage with new munge flag
+  HADOOP_SECURE (rather than HADOOP_FACEBOOK) and remove usage of
+  HADOOP (ekoontz via aching).
+
+  GIRAPH-85: Simplify return expression in 
+  RPCCommunications::getRPCProxy (Eli Reisman via jghoman)
+
+  GIRAPH-171: Total time in MasterThread.run() is calculated
+  incorrectly (ekoontz via aching).
+
+  GIRAPH-144: GiraphJob should not extend Job (users should not be
+  able to call Job methods like waitForCompletion or setMapper..etc)
+  (aching).
+
+  GIRAPH-159: Case insensitive file/directory name matching will
+  produce errors on M/R jar unpack (bfem via aching).
+
+  GIRAPH-166: add '*.patch' to list of files that Apache Rat ignores
+  (ekoontz via aching).
+
+  GIRAPH-167: mvn -Phadoop_non_secure clean verify fails (ekoontz via
+  aching).
+
+  GIRAPH-163: bin/giraph script overwrites CLASSPATH if "dev
+  environment" detected (this also removes USER_JAR from CLASSPATH)
+  (metaman via aching).
+
+  GIRAPH-164: fix 5 "Line is longer than 80 characters" style errors
+  in GiraphRunner (ekoontz via aching).
+
+  GIRAPH-162: BspCase.setup() should catch FileNotFoundException
+  thrown from org.apache.hadoop.fs.FileSystem.listStatus() (ekoontz
+  via aching).
+
+  GIRAPH-161: Handling null messages and edges when initializing
+  IntIntNullIntVertex (dlogothetis via aching).
+
+  GIRAPH-156: Users should be able to set simple 'custom arguments'
+  via org.apache.giraph.GiraphRunner (ssc)
+
+  GIRAPH-154: Worker ports are not synched properly with its peers
+  (Zhiwei Gu via aching).
+
+  GIRAPH-87: Simplify boolean expression in
+  BspService::checkpointFrequencyMet (Eli Reisman via aching).
+
+  GIRAPH-150: PageRankBenchmark accesses wrong conf after GiraphJob is
+  created (aching).
+ 
+  GIRAPH-40: Added checkstyle for enforcement of code conventions.
+  All Giraph source files now pass checkstyle. (aching)
+
+  GIRAPH-148: giraph-site.xml needs Apache header. (jghoman)
+  
+  GIRAPH-139: Change PageRankBenchmark to be accessible via bin/giraph. 
+  (jghoman)
+  
+  GIRAPH-143: Add support for giraph to have a conf file. (jghoman)
+
+  GIRAPH-142: _hadoopBsp should be prefixable via configuration. (jghoman)
+
+  GIRAPH-145. Change partition request log level to debug rather than info.
+  (jghoman)
+
+  GIRAPH-130: Fix Javadoc warnings. (Harsh J. Chouraria via jghoman)
+
+  GIRAPH-137: De-duplicate pagerank implementation in PageRankBenchmark.
+  (Harsh J. Chouraria via jghoman) 
+ 
+  GIRAPH-133: Typo in JavaDoc in BspCase::remove().
+  (Harsh J. Chouraria via jghoman) 
+  
+  GIRAPH-136: Error message for bin/graph could be improved. (jghoman)
+
+Release 0.1.0 - 2012-01-31
+
+  GIRAPH-120: Add Sebastian Schelter to site. (ssc)
+
+  GIRAPH-117: DefaultWorkerContext should preserve the method signatures
+  of WorkerContext. (ssc)
+
+  GIRAPH-135: Need DISCLAIMER for incubator. (jghoman)
+
+  GIRAPH-134: Fix NOTICE file for release. (jghoman)
+
+  GIRAPH-128: RPC port from BasicRPCCommunications should be only a
+  starting port, and retried. (aching)
+
+  GIRAPH-131: Enable creation of test-jars to simplify testing in 
+  downstream projects. (André Kelpe via jghoman)
+  
+  GIRAPH-129: Enable creation of javadoc and sources jars.
+  (André Kelpe via jghoman)
+  
+  GIRAPH-124: Combiner should return Iterable<M> instead of M or 
+  null. (claudio)
+
+  GIRAPH-125: Bug in LongDoubleFloatDoubleVertex.sendMsgToAllEdges().
+  (humming80 via aching)
+
+  GIRAPH-122: Roll version back to 0.1. (jghoman)
+
+  GIRAPH-118: Clarify messages behavior in BasicVertex. (claudio)
+
+  GIRAPH-119: VertexCombiner should work on Iterable<M> instead of 
+  List<M>. (claudio)
+
+  GIRAPH-116: Make EdgeListVertex the default vertex implementation,
+  fix bugs related to EdgeListVertex. (aching)
+
+  GIRAPH-115: Port of the HCC algorithm for identifying all connected
+  components of a graph. (ssc via aching)
+
+  GIRAPH-112: Use elements() properly in LongDoubleFloatDoubleVertex.
+  (aching)
+
+  GIRAPH-114: Inconsistent message map handling in
+  BasicRPCCommunications.LargeMessageFlushExecutor. (ssc via aching)
+
+  GIRAPH-109: GiraphRunner should provide support for combiners.
+  (ssc via claudio)
+
+  GIRAPH-113: Change cast to Vertex used in prepareSuperstep() to
+  BasicVertex. (humming80 via aching)
+
+  GIRAPH-110: Add guide to setup the enviroment for running the
+  unittests in a pseudo-distributed hadoop instance. (ssc via aching)
+
+  GIRAPH-73: A little refactoring. (ssc via aching)
+
+  GIRAPH-106: Change prepareSuperstep() to make
+  setMessages(Iterable<M> messages) package-private. (aching)
+ 
+  GIRAPH-105: BspServiceMaster.checkWorkers() should return empty
+  lists instead of null. (ssc via aching)
+
+  GIRAPH-80: Don't expose the list holding the messages in
+  BasicVertex. (ssc via aching)
+
+  GIRAPH-103: Added properties for commonly used package version to
+  pom.xml. (aching)
+
+  GIRAPH-57: Add new RPC call (putVertexIdMessagesList) to batch
+  putMsgList RPCs together. (aching)
+
+  GIRAPH-104: Save half of maximum memory used from messaging. (aching)
+
+  GIRAPH-10: Aggregators are not exported. (claudio)
+
+  GIRAPH-100: GIRAPH-100 - Data input sampling and testing
+  improvements. (aching)
+
+  GIRAPH-51: Provide unit testing tool for Giraph algorithms.
+  (Sebastian Schelter via jghoman)
+
+  GIRAPH-89: Simplify boolean expressions in BspRecordReader.
+  (shaunak via claudio)
+
+  GIRAPH-90: LongDoubleFloatDoubleVertex has possibily the iterator() 
+  implementation broken (claudio)
+
+  GIRAPH-99: Make AdjacencyListVertexReader and its constructor public.
+  (Kohei Ozaki via jghoman)
+
+  GIRAPH-98: Add Claudio Martella to site. (claudio)
+
+  GIRAPH-97: TestIdWithValueTextOutputFormat.java and 
+  IdWithValueTextOutputFormat.java missing license header (claudio)
+
+  GIRAPH-92: Need outputformat for just vertex ID and value. (jghoman)
+
+  GIRAPH-86: Simplify boolean expressions in ZooKeeperExt::createExt.
+  (attilacsordas via jghoman)
+
+  GIRAPH-91: Large-memory improvements (Memory reduced vertex
+  implementation, fast failure, added settings). (aching)
+
+  GIRAPH-89: Remove debugging system.out from LongDoubleFloatDoubleVertex. 
+  (shaunak via aching)
+
+  GIRAPH-88: Message count not updated properly after GIRAPH-11. (aching)
+
+  GIRAPH-70: Misspellings in PseudoRandomVertexInputFormat configuration
+  parameters. (attilacsordas via jghoman)
+
+  GIRAPH-58: Update site with Arun's id (asuresh)
+  
+  GIRAPH-11: Improve the graph distribution of Giraph. (aching)
+  
+  GIRAPH-64: Create VertexRunner to make it easier to run users'
+  computations. (jghoman)
+ 
+  GIRAPH-79: Change the menu layout of the site. (hyunsik via jghoman)
+
+  GIRAPH-75: Create sections on how to get involved and how 
+  to generate patches on website. (jghoman)
+
+  GIRAPH-63: Typo in PageRankBenchmark. (shaunak via jghoman)
+
+  GIRAPH-47: Export Worker's Context/State to vertices through
+  pre/post/Application/Superstep. (cmartella via aching)
+
+  GIRAPH-71: SequenceFileVertexInputFormat missing license header; 
+  rat fails. (jghoman)
+
+  GIRAPH-36: Ensure that subclassing BasicVertex is possible by user
+  apps. (jmannix via aching)
+
+  GIRAPH-50: Require Maven 3 in order to work with munging plugin.
+  (jghoman)
+  
+  GIRAPH-67: Provide AdjacencyList InputFormat for Ids of Strings and
+  double values. (jghoman)
+
+  GIRAPH-56: Create a CSV TextOutputFormat. (jghoman)
+
+  GIRAPH-66: Add presentations section to website. (jghoman)
+
+  GIRAPH-62: Provide input format for reading graphs stored as adjacency 
+  lists. (jghoman)
+
+  GIRAPH-59: Missing some test if debug enabled before LOG.debug() and
+  LOG.info(). (guzhiwei via aching)
+
+  GIRAPH-48: numFlushThreads is 0 when doing a single worker 
+  unittest. Changing the minimum to 1. (aching)
+
+  GIRAPH-44: Add documentation about counter limits in Hadoop 0.203+.
+  (mtiwari via jghoman)
+
+  GIRAPH-12: Investigate communication improvements. (hyunsik)
+
+  GIRAPH-46: Race condition on superstep 1 with RPC servers not
+  started by the time that requests are sent. (aching)
+
+  GIRAPH-21: Revise CODE_CONVENTIONS. (aching via jghoman)
+
+  GIRAPH-39: mvn rat doesn't like .git or .idea. (jghoman)
+
+  GIRAPH-32: Implement benchmarks to evaluate the performance of message 
+  passing. (hyunsik)
+
+  GIRAPH-34: Failure of Vertex reflection for putVertexList from
+  GIRAPH-27. (aching)
+
+  GIRAPH-35: Modifying the site to indicate that Jake Mannix and
+  Dmitriy Ryaboy are now Giraph committers. (aching)
+
+  GIRAPH-33: Missing license header of GraphState.java (Claudio
+  Martella via hyunsik)
+
+  GIRAPH-31: Hide the SortedMap<I, Edge<I,E>> in Vertex from client
+  visibility (impl. detail), replace with appropriate accessor
+  methods. (jake.mannix via aching)
+
+  GIRAPH-30: NPE in ZooKeeperManager if base directory cannot be
+  created. apurtell via aching.
+
+  GIRAPH-27: Mutable static global state in Vertex.java should be
+  refactored. jake.mannix via aching.
+ 
+  GIRAPH-25: NPE in BspServiceMaster when failing a job. dvryaboy via
+  aching.
+
+  GIRAPH-24: Job-level statistics reports one superstep greater than 
+  workers. (jghoman)
+  
+  GIRAPH-18: Refactor BspServiceWorker::loadVertices(). (jghoman)
+  
+  GIRAPH-14: Support for the Facebook Hadoop branch. (aching)
+
+  GIRAPH-16: Add Apache RAT to the verify build step. (omalley)
+
+  GIRAPH-17: Giraph doesn't give up properly after the maximum connect
+  attempts to ZooKeeper. (aching)
+
+  GIRAPH-2: Make the project homepage. (jghoman)
+
+  GIRAPH-9: Change Yahoo License Header to Apache License Header (hyunsik)
+
+  GIRAPH-6: Remove Yahoo-specific code from pom.xml. (jghoman)
+
+  GIRAPH-5: Remove Yahoo directories after svn import from Yahoo! (aching)
+
+  GIRAPH-3: Vertex:sentMsgToAllEdges should be sendMsg. (jghoman)

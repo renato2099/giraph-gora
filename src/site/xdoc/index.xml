@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Welcome To Apache Giraph!</title>
+  </properties>
+
+  <body>
+
+    <section name="Welcome to Apache Giraph!">
+      <p><i>Apache Giraph</i> is an iterative graph processing system built for high scalability. For example, it is currently used at Facebook to analyze the social graph formed by users and their connections. Giraph originated as the open-source counterpart to <i>Pregel</i>, the graph processing architecture developed at Google and described in a 2010 <a href="http://dl.acm.org/citation.cfm?id=1807184">paper</a>. Both systems are inspired by the <a href="http://en.wikipedia.org/wiki/Bulk_synchronous_parallel">Bulk Synchronous Parallel</a> model of distributed computation introduced by Leslie Valiant. Giraph adds several features beyond the basic Pregel model, including master computation, sharded aggregators, edge-oriented input, out-of-core computation, and more. With a steady development cycle and a growing community of users worldwide, Giraph is a natural choice for unleashing the potential of structured datasets at a massive scale. To learn more, consult the <i>User Docs</i> section above.</p>
+
+      <subsection name="Download">
+        <p>Official releases of Giraph may be downloaded from an <a href="http://www.apache.org/dyn/closer.cgi/giraph/">Apache mirror</a>. Pre-built packages will soon be available through Apache's Maven repositories, making it easier to include Giraph in your projects.</p>        
+      </subsection>
+
+      <subsection name="News">
+        <ul>
+          <li><strong>May 6, 2013: Giraph 1.0.0 is now released!</strong> Please pick up a copy <a href="http://www.apache.org/dyn/closer.cgi/giraph/giraph-1.0.0">here</a>.</li>
+          <li><strong>February 6, 2012: Giraph 0.1-incubating released.</strong> The Giraph PPMC is excited to announce that version 0.1 has been released. Grab a copy of the archived release <a href="http://archive.apache.org/dist/incubator/giraph">here</a>.</li>
+        </ul>
+      </subsection>
+
+      <subsection name="Getting involved">
+        <p>Giraph is an open-source project and external contributions are extremely appreciated. There are many ways to get involved:</p>
+        <ul>
+          <li>Subscribe to the <a href="mail-lists.html">mailing lists</a>, particularly the <i>user</i> and <i>developer</i> lists, where you can get a feel for the state of the project and what the community is working on.</li>
+          <li>Try out the examples and play with Giraph on your cluster. Be sure to ask questions on the user list or <a href="issue-tracking.html">file an issue</a> if you run into problems with your particular configuration.</li>
+          <li>Browse the existing issues to find something you may be interested in working on. Take a look at the section on <a href="generating_patches.html">generating patches</a> for detailed instructions on contributing your changes.</li>
+        </ul>
+      </subsection>
+
+    </section>
+
+  </body>
+
+</document>
