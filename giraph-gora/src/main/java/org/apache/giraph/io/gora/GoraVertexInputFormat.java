@@ -18,15 +18,23 @@
 package org.apache.giraph.io.gora;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
+import org.apache.giraph.io.gora.GoraUtils;
+import org.apache.giraph.io.gora.generated.GVertex;
 import org.apache.gora.mapreduce.GoraInputFormat;
+import org.apache.gora.mapreduce.GoraInputSplit;
 import org.apache.gora.persistency.impl.PersistentBase;
+import org.apache.gora.query.PartitionQuery;
+import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
+import org.apache.gora.query.impl.PartitionQueryImpl;
 import org.apache.gora.store.DataStore;
+import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -57,16 +65,17 @@ public abstract class GoraVertexInputFormat<
   private static final Logger LOG =
           Logger.getLogger(GoraVertexInputFormat.class);
 
-  /**
-   * delegate input format for gora operations.
-   */
-  protected GoraInputFormat goraInputFormat =
-      new GoraInputFormat();
-
+  private static Class<?> keyClass;
+  /** The vertex itself will be used as a value inside Gora. */
+  private static Class<? extends PersistentBase> persistentClass;
+  
   /**
    * Data store used for querying data.
    */
-  private DataStore dataStore;
+  private static DataStore dataStore;
+
+  /** counter for iinput records */
+  private static int recordCounter = 0;
 
   /** @param conf configuration parameters */
   public void checkInputSpecs(Configuration conf) { }
@@ -85,21 +94,69 @@ public abstract class GoraVertexInputFormat<
   public abstract GoraVertexReader createVertexReader(InputSplit split,
     TaskAttemptContext context) throws IOException;
 
+  public void initialize() {
+    dataStore = getDataStore();
+  }
+
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
-    List<InputSplit> splits = null;
-    try {
-      splits = goraInputFormat.getSplits(context);
-    } catch (IOException e) {
-      if (e.getMessage().contains("Input info has not been set")) {
-        throw new IOException(e.getMessage() +
-                " Make sure you initialized" +
-                " GoraInputFormat static setters " +
-                "before passing the config to GiraphJob.");
+    Query qq = GoraUtils.getQuery(dataStore, null);
+    List<PartitionQuery> queries = dataStore.getPartitions(
+        GoraUtils.getQuery(dataStore, null));
+    List<InputSplit> splits = new ArrayList<InputSplit>(queries.size());
+    for(PartitionQuery query : queries) {
+      splits.add(new GoraInputSplit(context.getConfiguration(), query));
+    }
+    if (splits.size() > 0) {
+      System.out.println("Guardamos algo de splits " + splits.size());
+    }
+    return createSplits(context, qq);
+  }
+
+  private List<InputSplit> createSplits(JobContext context, Query query){
+    int chunks = context.getConfiguration().getInt("mapred.map.tasks", 1);
+    long chunkSize = chunks;
+    List<InputSplit> splits = new ArrayList<InputSplit>();
+    for (int i = 0; i < chunks; i++) {
+      final ExtraGoraInputSplit split;
+      final long              start;
+      final long              end;
+
+      start = i * chunkSize;
+      end   = ((i + 1) == chunks) ? Long.MAX_VALUE :
+                                    (i * chunkSize) + chunkSize;
+      split = new ExtraGoraInputSplit(start, end);
+      splits.add(split);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(String.format("Chunk: start %d; end %d;", start, end));
+        LOG.debug(String.format("Chunk: size %d;", chunkSize));
+        LOG.debug(split);
       }
     }
+    System.out.println("Hubo " + chunks + " chunks.");
     return splits;
+  }
+
+  /**
+   * Gets the data store object initialized.
+   */
+  public DataStore getDataStore() {
+    try {
+      if (getKeyClass() == null) {
+        System.out.println("No hay key class");
+      }
+      if (getPersistentClass() == null) {
+        System.out.println("No hay persistent class");
+      }
+      return GoraUtils.createSpecificDataStore(GoraUtils.CASSANDRA_STORE,
+          getKeyClass(), getPersistentClass());
+    } catch (GoraException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
   }
 
   /**
@@ -110,10 +167,6 @@ public abstract class GoraVertexInputFormat<
   protected abstract class GoraVertexReader extends VertexReader<I, V, E> {
     /** Current vertex */
     private Vertex<I, V, E> vertex;
-    /** The vertex ID will be used as a key inside Gora. */
-    private Class<?> keyClass;
-    /** The vertex itself will be used as a value inside Gora. */
-    private Class<? extends PersistentBase> persistentClass;
     /** Results gotten from Gora data store. */
     private Result readResults;
     /** Start key for querying Gora data store. */
@@ -124,9 +177,8 @@ public abstract class GoraVertexInputFormat<
     @Override
     public void initialize(InputSplit inputSplit, TaskAttemptContext context)
       throws IOException, InterruptedException {
-      // initialize gora data store
-      dataStore = GoraUtils.createSpecificDataStore(GoraUtils.CASSANDRA_STORE,
-          getKeyClass(), getPersistentClass());
+      getResults();
+      recordCounter = 0;
     }
 
     /**
@@ -136,16 +188,25 @@ public abstract class GoraVertexInputFormat<
      * @throws InterruptedException exceptions passed along.
      */
     @Override
+    // CHECKSTYLE: stop IllegalCatch
     public boolean nextVertex() throws IOException, InterruptedException {
-      LOG.debug("Reading vertices from Gora");
-      if (getReadResults() != null) {
-        while (getReadResults().next()) {
-          vertex = transformVertex(getReadResults().get());
-        }
-        return true;
+      System.out.println("Reading vertices from Gora");
+      boolean flg = false;
+      
+      try {
+        flg = this.getReadResults().next();
+        this.vertex = transformVertex(this.getReadResults().get());
+        System.out.println("Transformado");
+        System.out.println(this.vertex.toString());
+        ++recordCounter;
+      } catch (Exception e) {
+        LOG.debug("Error transforming vertices.");
+        flg = false;
       }
-      return false;
+      System.out.println("Transformamos " + recordCounter + " registros");
+      return flg;
     }
+    // CHECKSTYLE: resume IllegalCatch
 
     /**
      * Gets the progress of reading results from Gora.
@@ -183,7 +244,7 @@ public abstract class GoraVertexInputFormat<
      * Performs a range query to a Gora data store.
      */
     protected void getResults() {
-      setReadResults(GoraUtils.getRequests(dataStore,
+      setReadResults(GoraUtils.getRequest(dataStore,
           getStartKey(), getEndKey()));
     }
 
@@ -227,28 +288,52 @@ public abstract class GoraVertexInputFormat<
       this.endKey = pEndKey;
     }
 
+    /**
+     * Gets the results read.
+     * @return results read.
+     */
     Result getReadResults() {
       return readResults;
     }
 
+    /**
+     * Sets the results read.
+     * @param readResults results read.
+     */
     void setReadResults(Result readResults) {
       this.readResults = readResults;
     }
+  }
 
-    Class<? extends PersistentBase> getPersistentClass() {
-      return persistentClass;
-    }
+  /**
+   * Gets the persistent Class
+   * @return persistentClass used
+   */
+  static Class<? extends PersistentBase> getPersistentClass() {
+    return persistentClass;
+  }
 
-    void setPersistentClass(Class<? extends PersistentBase> persistentClass) {
-      this.persistentClass = persistentClass;
-    }
+  /**
+   * Sets the persistent Class
+   * @param persistentClass to be set
+   */
+  static void setPersistentClass(Class<? extends PersistentBase> persistentClassUsed) {
+    persistentClass = persistentClassUsed;
+  }
 
-    Class<?> getKeyClass() {
-      return keyClass;
-    }
+  /**
+   * Gets the key class used.
+   * @return the key class used.
+   */
+  static Class<?> getKeyClass() {
+    return keyClass;
+  }
 
-    void setKeyClass(Class<?> keyClass) {
-      this.keyClass = keyClass;
-    }
+  /**
+   * Sets the key class used.
+   * @param keyClassUsed key class used.
+   */
+  static void setKeyClass(Class<?> keyClassUsed) {
+    keyClass = keyClassUsed;
   }
 }

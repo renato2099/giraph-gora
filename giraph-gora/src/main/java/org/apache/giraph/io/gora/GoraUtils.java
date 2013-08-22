@@ -17,6 +17,10 @@
  */
 package org.apache.giraph.io.gora;
 
+import java.io.IOException;
+
+import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.io.gora.generated.GVertex;
 import org.apache.gora.cassandra.store.CassandraStore;
 import org.apache.gora.persistency.Persistent;
 import org.apache.gora.query.Query;
@@ -37,14 +41,11 @@ public class GoraUtils {
   public static final String CASSANDRA_STORE = "cassandra";
 
   /**
-   * HBase data store name.
-   */
-  public static final String HBASE_STORE = "hbase";
-
-  /**
    * Attribute handling the specific class to be created.
    */
-  protected static Class<? extends DataStore> DATASTORECLASS;
+  private static Class<? extends DataStore> DATASTORECLASS;
+
+  private static Query query;
 
   /**
    * Attribute handling configuration for data stores.
@@ -76,7 +77,7 @@ public class GoraUtils {
         DataStoreFactory.createDataStore((Class<? extends DataStore<K, T>>)
                                           DATASTORECLASS,
                                           keyClass, persistentClass,
-                                          CONF);
+                                          getConf());
 
     return dataStore;
   }
@@ -91,12 +92,6 @@ public class GoraUtils {
     if (pDataStoreName.toLowerCase().equals(CASSANDRA_STORE)) {
       return CassandraStore.class;
     }
-    //if (pDataStoreName.toLowerCase().equals(HBASE_STORE)){
-      //return HbaseStore.class;
-    //}
-    //if (pDataStoreName == "DynamoDB"){
-      //  return DynamoDBStore.class;
-    //}
     return null;
   }
 
@@ -125,13 +120,111 @@ public class GoraUtils {
    * @param pDataStore  data store being used.
    * @param pStartKey start key for the range query.
    * @param pEndKey end key for the range query.
+   * @return Result containing all results for the query.
+   */
+  public static <K, T extends Persistent> Result<K, T>
+  getRequest(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
+    System.out.println("Intentando entrarle con todo a Gora");
+    Query<K, T> query = getQuery(pDataStore, pStartKey, pEndKey);
+    return getRequest(pDataStore, query);
+  }
+
+  /**
+   * Performs a query to Gora datastores
+   * @param pDataStore data store being used.
+   * @param query query executed over data stores.
+   * @return Result containing all results for the query.
+   */
+  //CHECKSTYLE: stop IllegalCatch
+  public static <K, T extends Persistent> Result<K, T>
+  getRequest(DataStore<K, T> pDataStore, Query<K, T> query) {
+    System.out.println("Intentando leer 2");
+    try {
+      pDataStore= (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
+          String.class,
+          GVertex.class);
+    } catch (GoraException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    int cc = 0;
+    Result res = pDataStore.execute(query);
+    System.out.println("Finalmente logramos leer objects");
+    return res;
+  }
+  //CHECKSTYLE: resume IllegalCatch
+
+  /**
+   * Performs a range query to Gora datastores
+   * @param <K> key class
+   * @param <T> value class
+   * @param pDataStore  data store being used.
+   * @param pStartKey start key for the range query.
+   * @param pEndKey end key for the range query.
    * @return  Result containing all results for the query.
    */
   public static <K, T extends Persistent> Result<K, T>
-  getRequests(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
+  getRequest(DataStore<K, T> pDataStore, K pStartKey) {
+    return getRequest(pDataStore, pStartKey, null);
+  }
+
+  /*public static GoraInputFormat createGoraInputFormat(Configuration conf,
+      Query query, DataStore<Object, Persistent> dataStore,
+      boolean reuseObjects){
+    GoraInputFormat goraInput = new GoraInputFormat();
+    goraInput.setConf(conf);
+  }*/
+
+  /**
+   * Gets a query object to be used as a range query.
+   * @param pDataStore data store used.
+   * @param pStartKey range start key.
+   * @param pEndKey range end key.
+   * @return range query object.
+   */
+  public static <K, T extends Persistent> Query<K, T>
+  getQuery(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
+    // TODO the data store gets here FUCKED
+    try {
+      pDataStore= (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
+          String.class,
+          GVertex.class);
+    } catch (GoraException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Query<K, T> query = pDataStore.newQuery();
+    query.setFields("vertexId", "value", "edges");
     query.setStartKey(pStartKey);
     query.setEndKey(pEndKey);
-    return pDataStore.execute(query);
+    return query;
+  }
+
+  /**
+   * Gets a query object to be used as a simple get.
+   * @param pDataStore data store used.
+   * @param pStartKey range start key.
+   * @return query object.
+   */
+  public static <K, T extends Persistent> Query<K, T>
+  getQuery(DataStore<K, T> pDataStore, K pStartKey) {
+    Query<K, T> query = pDataStore.newQuery();
+    query.setStartKey(pStartKey);
+    query.setEndKey(null);
+    return query;
+  }
+
+  /**
+   * @return the cONF
+   */
+  public static Configuration getConf() {
+    return CONF;
+  }
+
+  /**
+   * @param cONF the cONF to set
+   */
+  public static void setConf(Configuration cONF) {
+    CONF = cONF;
   }
 }
