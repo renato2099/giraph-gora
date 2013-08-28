@@ -135,24 +135,10 @@ public class GoraUtils {
    * @param query query executed over data stores.
    * @return Result containing all results for the query.
    */
-  //CHECKSTYLE: stop IllegalCatch
   public static <K, T extends Persistent> Result<K, T>
   getRequest(DataStore<K, T> pDataStore, Query<K, T> query) {
-    System.out.println("Intentando leer 2");
-    try {
-      pDataStore= (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
-          String.class,
-          GVertex.class);
-    } catch (GoraException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    int cc = 0;
-    Result res = pDataStore.execute(query);
-    System.out.println("Finalmente logramos leer objects");
-    return res;
+    return pDataStore.execute(query);
   }
-  //CHECKSTYLE: resume IllegalCatch
 
   /**
    * Performs a range query to Gora datastores
@@ -167,13 +153,6 @@ public class GoraUtils {
   getRequest(DataStore<K, T> pDataStore, K pStartKey) {
     return getRequest(pDataStore, pStartKey, null);
   }
-
-  /*public static GoraInputFormat createGoraInputFormat(Configuration conf,
-      Query query, DataStore<Object, Persistent> dataStore,
-      boolean reuseObjects){
-    GoraInputFormat goraInput = new GoraInputFormat();
-    goraInput.setConf(conf);
-  }*/
 
   /**
    * Gets a query object to be used as a range query.
@@ -210,6 +189,19 @@ public class GoraUtils {
   getQuery(DataStore<K, T> pDataStore, K pStartKey) {
     Query<K, T> query = pDataStore.newQuery();
     query.setStartKey(pStartKey);
+    query.setEndKey(null);
+    return query;
+  }
+
+  /**
+   * Gets a query object to be used as a simple get.
+   * @param pDataStore data store used.
+   * @return query object.
+   */
+  public static <K, T extends Persistent> Query<K, T>
+  getQuery(DataStore<K, T> pDataStore) {
+    Query<K, T> query = pDataStore.newQuery();
+    query.setStartKey(null);
     query.setEndKey(null);
     return query;
   }

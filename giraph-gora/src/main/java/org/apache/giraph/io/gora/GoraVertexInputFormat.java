@@ -77,6 +77,12 @@ public abstract class GoraVertexInputFormat<
   /** counter for iinput records */
   private static int recordCounter = 0;
 
+  /**
+  * delegate HBase table input format
+  */
+ protected static ExtraGoraInputFormat goraInputFormat =
+         new ExtraGoraInputFormat();
+
   /** @param conf configuration parameters */
   public void checkInputSpecs(Configuration conf) { }
 
@@ -101,20 +107,41 @@ public abstract class GoraVertexInputFormat<
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
-    Query qq = GoraUtils.getQuery(dataStore, null);
-    List<PartitionQuery> queries = dataStore.getPartitions(
-        GoraUtils.getQuery(dataStore, null));
+    /*List<PartitionQuery> queries = dataStore.getPartitions(
+        GoraUtils.getQuery(dataStore));
+    if (queries != null) {
+      System.out.println("Habia partitions en getSplits" + queries.size());
+    }
+    if (GoraUtils.getQuery(dataStore) != null) {
+      System.out.println("Conseguimos crear una query getSplits");
+    }
     List<InputSplit> splits = new ArrayList<InputSplit>(queries.size());
     for(PartitionQuery query : queries) {
       splits.add(new GoraInputSplit(context.getConfiguration(), query));
     }
     if (splits.size() > 0) {
       System.out.println("Guardamos algo de splits " + splits.size());
+    }*/
+    goraInputFormat.setDataStore(dataStore);
+    goraInputFormat.setQuery(GoraUtils.getQuery(dataStore));
+    List<InputSplit> splits = goraInputFormat.getSplits(context);
+    if (splits != null) {
+      System.out.println("Habia partitions en getSplits" + splits.size());
+      String []locs = splits.get(0).getLocations();
+      if ( locs != null ) {
+        System.out.println("there were locations " + locs.length);
+      }
+      else {
+        System.out.println("there were no locations");
+      }
     }
-    return createSplits(context, qq);
+    else {
+      System.out.println("el input format sigue sin funcionar");
+    }
+    return splits;
   }
 
-  private List<InputSplit> createSplits(JobContext context, Query query){
+  /*private List<InputSplit> createSplits(JobContext context, Query query){
     int chunks = context.getConfiguration().getInt("mapred.map.tasks", 1);
     long chunkSize = chunks;
     List<InputSplit> splits = new ArrayList<InputSplit>();
@@ -126,7 +153,7 @@ public abstract class GoraVertexInputFormat<
       start = i * chunkSize;
       end   = ((i + 1) == chunks) ? Long.MAX_VALUE :
                                     (i * chunkSize) + chunkSize;
-      split = new ExtraGoraInputSplit(start, end);
+      split = new ExtraGoraInputSplit();
       splits.add(split);
 
       if (LOG.isDebugEnabled()) {
@@ -137,7 +164,7 @@ public abstract class GoraVertexInputFormat<
     }
     System.out.println("Hubo " + chunks + " chunks.");
     return splits;
-  }
+  }*/
 
   /**
    * Gets the data store object initialized.
