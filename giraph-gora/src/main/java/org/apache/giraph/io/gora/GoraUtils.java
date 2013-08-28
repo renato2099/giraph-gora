@@ -17,11 +17,9 @@
  */
 package org.apache.giraph.io.gora;
 
-import java.io.IOException;
-
-import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.gora.generated.GVertex;
 import org.apache.gora.cassandra.store.CassandraStore;
+import org.apache.gora.hbase.store.HBaseStore;
 import org.apache.gora.persistency.Persistent;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
@@ -39,18 +37,25 @@ public class GoraUtils {
    * Cassandra data store name.
    */
   public static final String CASSANDRA_STORE = "cassandra";
+  /**
+   * Cassandra data store name.
+   */
+  public static final String HBASE_STORE = "hbase";
 
   /**
    * Attribute handling the specific class to be created.
    */
   private static Class<? extends DataStore> DATASTORECLASS;
 
-  private static Query query;
+  /**
+   * Query to be used for Gora operations.
+   */
+  private static Query QUERY;
 
   /**
    * Attribute handling configuration for data stores.
    */
-  private static Configuration CONF;
+  private static Configuration CONF = new Configuration();
 
   /**
    * The default constructor is set to be private by default so that the
@@ -91,6 +96,8 @@ public class GoraUtils {
   (String pDataStoreName) {
     if (pDataStoreName.toLowerCase().equals(CASSANDRA_STORE)) {
       return CassandraStore.class;
+    } else if (pDataStoreName.toLowerCase().equals(HBASE_STORE)) {
+      return HBaseStore.class;
     }
     return null;
   }
@@ -133,6 +140,8 @@ public class GoraUtils {
    * Performs a query to Gora datastores
    * @param pDataStore data store being used.
    * @param query query executed over data stores.
+   * @param <K> key class
+   * @param <T> value class
    * @return Result containing all results for the query.
    */
   public static <K, T extends Persistent> Result<K, T>
@@ -146,7 +155,6 @@ public class GoraUtils {
    * @param <T> value class
    * @param pDataStore  data store being used.
    * @param pStartKey start key for the range query.
-   * @param pEndKey end key for the range query.
    * @return  Result containing all results for the query.
    */
   public static <K, T extends Persistent> Result<K, T>
@@ -159,13 +167,15 @@ public class GoraUtils {
    * @param pDataStore data store used.
    * @param pStartKey range start key.
    * @param pEndKey range end key.
+   * @param <K> key class
+   * @param <T> value class
    * @return range query object.
    */
   public static <K, T extends Persistent> Query<K, T>
   getQuery(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
     // TODO the data store gets here FUCKED
     try {
-      pDataStore= (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
+      pDataStore = (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
           String.class,
           GVertex.class);
     } catch (GoraException e) {
@@ -183,6 +193,8 @@ public class GoraUtils {
    * Gets a query object to be used as a simple get.
    * @param pDataStore data store used.
    * @param pStartKey range start key.
+   * @param <K> key class
+   * @param <T> value class
    * @return query object.
    */
   public static <K, T extends Persistent> Query<K, T>
@@ -196,6 +208,8 @@ public class GoraUtils {
   /**
    * Gets a query object to be used as a simple get.
    * @param pDataStore data store used.
+   * @param <K> key class
+   * @param <T> value class
    * @return query object.
    */
   public static <K, T extends Persistent> Query<K, T>
@@ -207,16 +221,18 @@ public class GoraUtils {
   }
 
   /**
-   * @return the cONF
+   * Gets the configuration object.
+   * @return the configuration object.
    */
   public static Configuration getConf() {
     return CONF;
   }
 
   /**
-   * @param cONF the cONF to set
+   * Sets the configuration object.
+   * @param conf to be set as the configuration object.
    */
-  public static void setConf(Configuration cONF) {
-    CONF = cONF;
+  public static void setConf(Configuration conf) {
+    CONF = conf;
   }
 }

@@ -18,21 +18,13 @@
 package org.apache.giraph.io.gora;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
-import org.apache.giraph.io.gora.GoraUtils;
-import org.apache.giraph.io.gora.generated.GVertex;
-import org.apache.gora.mapreduce.GoraInputFormat;
-import org.apache.gora.mapreduce.GoraInputSplit;
 import org.apache.gora.persistency.impl.PersistentBase;
-import org.apache.gora.query.PartitionQuery;
-import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
-import org.apache.gora.query.impl.PartitionQueryImpl;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
@@ -65,22 +57,24 @@ public abstract class GoraVertexInputFormat<
   private static final Logger LOG =
           Logger.getLogger(GoraVertexInputFormat.class);
 
-  private static Class<?> keyClass;
+  /** KeyClass used for getting data. */
+  private static Class<?> KEY_CLASS;
+
   /** The vertex itself will be used as a value inside Gora. */
-  private static Class<? extends PersistentBase> persistentClass;
-  
+  private static Class<? extends PersistentBase> PERSISTENT_CLASS;
+
   /**
    * Data store used for querying data.
    */
-  private static DataStore dataStore;
+  private static DataStore DATA_STORE;
 
   /** counter for iinput records */
-  private static int recordCounter = 0;
+  private static int RECORD_COUNTER = 0;
 
   /**
   * delegate HBase table input format
   */
- protected static ExtraGoraInputFormat goraInputFormat =
+  private static ExtraGoraInputFormat GORA_INPUT_FORMAT =
          new ExtraGoraInputFormat();
 
   /** @param conf configuration parameters */
@@ -100,10 +94,19 @@ public abstract class GoraVertexInputFormat<
   public abstract GoraVertexReader createVertexReader(InputSplit split,
     TaskAttemptContext context) throws IOException;
 
+  /**
+   * Initializes data store.
+   */
   public void initialize() {
-    dataStore = getDataStore();
+    DATA_STORE = getDataStore();
   }
 
+  /**
+   * Gets the splits for a data store.
+   * @param context JobContext
+   * @param minSplitCountHint Hint for a minimum split count
+   * @return List<InputSplit> A list of splits
+   */
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
@@ -122,52 +125,28 @@ public abstract class GoraVertexInputFormat<
     if (splits.size() > 0) {
       System.out.println("Guardamos algo de splits " + splits.size());
     }*/
-    goraInputFormat.setDataStore(dataStore);
-    goraInputFormat.setQuery(GoraUtils.getQuery(dataStore));
-    List<InputSplit> splits = goraInputFormat.getSplits(context);
-    if (splits != null) {
+    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
+    GORA_INPUT_FORMAT.setQuery(GoraUtils.getQuery(DATA_STORE));
+    List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
+    System.out.println("Habia partitions en getSplits" + splits.size());
+    /*if (splits != null) {
       System.out.println("Habia partitions en getSplits" + splits.size());
       String []locs = splits.get(0).getLocations();
-      if ( locs != null ) {
+      if (locs != null) {
         System.out.println("there were locations " + locs.length);
       }
-      else {
+      if (locs == null) {
         System.out.println("there were no locations");
       }
-    }
-    else {
+    } else {
       System.out.println("el input format sigue sin funcionar");
-    }
+    }*/
     return splits;
   }
 
-  /*private List<InputSplit> createSplits(JobContext context, Query query){
-    int chunks = context.getConfiguration().getInt("mapred.map.tasks", 1);
-    long chunkSize = chunks;
-    List<InputSplit> splits = new ArrayList<InputSplit>();
-    for (int i = 0; i < chunks; i++) {
-      final ExtraGoraInputSplit split;
-      final long              start;
-      final long              end;
-
-      start = i * chunkSize;
-      end   = ((i + 1) == chunks) ? Long.MAX_VALUE :
-                                    (i * chunkSize) + chunkSize;
-      split = new ExtraGoraInputSplit();
-      splits.add(split);
-
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(String.format("Chunk: start %d; end %d;", start, end));
-        LOG.debug(String.format("Chunk: size %d;", chunkSize));
-        LOG.debug(split);
-      }
-    }
-    System.out.println("Hubo " + chunks + " chunks.");
-    return splits;
-  }*/
-
   /**
    * Gets the data store object initialized.
+   * @return DataStore created
    */
   public DataStore getDataStore() {
     try {
@@ -177,7 +156,7 @@ public abstract class GoraVertexInputFormat<
       if (getPersistentClass() == null) {
         System.out.println("No hay persistent class");
       }
-      return GoraUtils.createSpecificDataStore(GoraUtils.CASSANDRA_STORE,
+      return GoraUtils.createSpecificDataStore(GoraUtils.HBASE_STORE,
           getKeyClass(), getPersistentClass());
     } catch (GoraException e) {
       // TODO Auto-generated catch block
@@ -205,7 +184,7 @@ public abstract class GoraVertexInputFormat<
     public void initialize(InputSplit inputSplit, TaskAttemptContext context)
       throws IOException, InterruptedException {
       getResults();
-      recordCounter = 0;
+      RECORD_COUNTER = 0;
     }
 
     /**
@@ -225,12 +204,12 @@ public abstract class GoraVertexInputFormat<
         this.vertex = transformVertex(this.getReadResults().get());
         System.out.println("Transformado");
         System.out.println(this.vertex.toString());
-        ++recordCounter;
+        ++RECORD_COUNTER;
       } catch (Exception e) {
         LOG.debug("Error transforming vertices.");
         flg = false;
       }
-      System.out.println("Transformamos " + recordCounter + " registros");
+      System.out.println("Transformamos " + RECORD_COUNTER + " registros");
       return flg;
     }
     // CHECKSTYLE: resume IllegalCatch
@@ -271,7 +250,7 @@ public abstract class GoraVertexInputFormat<
      * Performs a range query to a Gora data store.
      */
     protected void getResults() {
-      setReadResults(GoraUtils.getRequest(dataStore,
+      setReadResults(GoraUtils.getRequest(DATA_STORE,
           getStartKey(), getEndKey()));
     }
 
@@ -337,15 +316,16 @@ public abstract class GoraVertexInputFormat<
    * @return persistentClass used
    */
   static Class<? extends PersistentBase> getPersistentClass() {
-    return persistentClass;
+    return PERSISTENT_CLASS;
   }
 
   /**
    * Sets the persistent Class
-   * @param persistentClass to be set
+   * @param persistentClassUsed to be set
    */
-  static void setPersistentClass(Class<? extends PersistentBase> persistentClassUsed) {
-    persistentClass = persistentClassUsed;
+  static void setPersistentClass
+  (Class<? extends PersistentBase> persistentClassUsed) {
+    PERSISTENT_CLASS = persistentClassUsed;
   }
 
   /**
@@ -353,7 +333,7 @@ public abstract class GoraVertexInputFormat<
    * @return the key class used.
    */
   static Class<?> getKeyClass() {
-    return keyClass;
+    return KEY_CLASS;
   }
 
   /**
@@ -361,6 +341,6 @@ public abstract class GoraVertexInputFormat<
    * @param keyClassUsed key class used.
    */
   static void setKeyClass(Class<?> keyClassUsed) {
-    keyClass = keyClassUsed;
+    KEY_CLASS = keyClassUsed;
   }
 }
