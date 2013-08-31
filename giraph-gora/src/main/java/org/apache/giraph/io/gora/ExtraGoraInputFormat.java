@@ -87,6 +87,9 @@ public class ExtraGoraInputFormat<K, T extends PersistentBase>
   @Override
   public List<InputSplit> getSplits(JobContext context) throws IOException,
       InterruptedException {
+    if (getQuery() == null) {
+      System.out.println("No habia queries en el get splits del InputFormat");
+    }
     List<PartitionQuery<K, T>> queries =
         getDataStore().getPartitions(getQuery());
     List<InputSplit> splits = new ArrayList<InputSplit>(queries.size());
