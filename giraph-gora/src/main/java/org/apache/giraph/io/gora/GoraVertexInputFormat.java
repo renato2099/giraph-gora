@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
+import org.apache.gora.mapreduce.GoraMapReduceUtils;
 import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
@@ -63,17 +64,16 @@ public abstract class GoraVertexInputFormat<
   /** The vertex itself will be used as a value inside Gora. */
   private static Class<? extends PersistentBase> PERSISTENT_CLASS;
 
-  /**
-   * Data store used for querying data.
-   */
+  /** Data store class to be used as backend. */
+  private static Class<?> DATASTORE_CLASS;
+
+  /** Data store used for querying data. */
   private static DataStore DATA_STORE;
 
   /** counter for iinput records */
   private static int RECORD_COUNTER = 0;
 
-  /**
-  * delegate HBase table input format
-  */
+  /** Delegate Gora input format */
   private static ExtraGoraInputFormat GORA_INPUT_FORMAT =
          new ExtraGoraInputFormat();
 
@@ -102,6 +102,20 @@ public abstract class GoraVertexInputFormat<
   }
 
   /**
+   * Initializes all needed parameters.
+   * @param keyClass Key class used.
+   * @param persistentClass Persistent class used.
+   * @param dataStoreClass Data store used as backend.
+   */
+  public void initialize(Class<?> keyClass,
+      Class<? extends PersistentBase> persistentClass,
+      Class<?> dataStoreClass) {
+    setPersistentClass(persistentClass);
+    setKeyClass(keyClass);
+    setDatastoreClass(dataStoreClass);
+  }
+
+  /**
    * Gets the splits for a data store.
    * @param context JobContext
    * @param minSplitCountHint Hint for a minimum split count
@@ -125,8 +139,14 @@ public abstract class GoraVertexInputFormat<
     if (splits.size() > 0) {
       System.out.println("Guardamos algo de splits " + splits.size());
     }*/
-    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
-    GORA_INPUT_FORMAT.setQuery(GoraUtils.getQuery(DATA_STORE));
+    DataStore tmpDs = getDataStore();
+    tmpDs.setKeyClass(String.class);
+    GORA_INPUT_FORMAT.setDataStore(tmpDs);
+    GORA_INPUT_FORMAT.setQuery(GoraUtils.getQuery(tmpDs));
+    GoraMapReduceUtils.setIOSerializations(context.getConfiguration(), true);
+    GORA_INPUT_FORMAT.setQuery(context.getConfiguration(),
+        GoraUtils.getQuery(tmpDs));
+ 
     List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
     System.out.println("Habia partitions en getSplits" + splits.size());
     /*if (splits != null) {
@@ -342,5 +362,19 @@ public abstract class GoraVertexInputFormat<
    */
   static void setKeyClass(Class<?> keyClassUsed) {
     KEY_CLASS = keyClassUsed;
+  }
+
+  /**
+   * @return the dATASTORE_CLASS
+   */
+  public static Class<?> getDatastoreClass() {
+    return DATASTORE_CLASS;
+  }
+
+  /**
+   * @param dATASTORE_CLASS the dATASTORE_CLASS to set
+   */
+  public static void setDatastoreClass(Class<?> dATASTORE_CLASS) {
+    DATASTORE_CLASS = dATASTORE_CLASS;
   }
 }

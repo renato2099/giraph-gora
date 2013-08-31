@@ -22,13 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.gora.mapreduce.GoraInputSplit;
+import org.apache.gora.mapreduce.GoraMapReduceUtils;
 import org.apache.gora.mapreduce.GoraRecordReader;
+import org.apache.gora.persistency.Persistent;
 import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.query.PartitionQuery;
 import org.apache.gora.query.Query;
 import org.apache.gora.store.DataStore;
+import org.apache.gora.util.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -46,6 +51,11 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  */
 public class ExtraGoraInputFormat<K, T extends PersistentBase>
   extends InputFormat<K, T> {
+
+  /**
+   * String used to map partitioned queries into configuration object.
+   */
+  public static final String QUERY_KEY   = "gora.inputformat.query";
 
   /**
    * Data store to be used.
@@ -116,4 +126,44 @@ public class ExtraGoraInputFormat<K, T extends PersistentBase>
     this.query = query;
   }
 
+  /**
+   * Sets the partitioned query inside the job object.
+   * @param job Job being run.
+   * @param query Query to be executed.
+   * @throws IOException Exception that be might thrown.
+   */
+  public static<K, T extends Persistent> void setQuery(Configuration conf
+      , Query<K, T> query) throws IOException {
+    IOUtils.storeToConf(query, conf, QUERY_KEY);
+  }
+
+  /**
+   * Gets the partitioned query from the conf object passed.
+   * @param conf Configuration object.
+   * @return Query passed inside the configuration object
+   * @throws IOException Exception that might be thrown.
+   */
+  public Query<K, T> getQuery(Configuration conf) throws IOException {
+    return IOUtils.loadFromConf(conf, QUERY_KEY);
+  }
+
+  /**
+   * Sets the input parameters for the job
+   * @param job the job to set the properties for
+   * @param query the query to get the inputs from
+   * @param dataStore the datastore as the input
+   * @param reuseObjects whether to reuse objects in serialization
+   * @throws IOException
+   */
+  public static <K1, V1 extends Persistent> void setInput(Job job,
+  Query<K1,V1> query, DataStore<K1,V1> dataStore, boolean reuseObjects)
+  throws IOException {
+
+    Configuration conf = job.getConfiguration();
+
+    GoraMapReduceUtils.setIOSerializations(conf, reuseObjects);
+
+    job.setInputFormatClass(ExtraGoraInputFormat.class);
+    ExtraGoraInputFormat.setQuery(job.getConfiguration(), query);
+  }
 }
