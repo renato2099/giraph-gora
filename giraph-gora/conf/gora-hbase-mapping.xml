@@ -19,13 +19,13 @@
 
 <gora-orm>
 
-  <table name="graphGiraph" host="localhost" cluster="Test Cluster">
+  <table name="graphGiraph">
     <family name="vertices"/>
   </table>
 
   <class name="org.apache.giraph.io.gora.generated.GVertex" keyClass="java.lang.String" table="graphGiraph">
     <field name="vertexId" family="vertices" qualifier="vertexId"/>
-    <field name="vertexValue" family="vertices" qualifier="vertexValue"/>
+    <field name="value" family="vertices" qualifier="value"/>
     <field name="edges" family="vertices" qualifier="edges"/>
   </class>
 
