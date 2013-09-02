@@ -25,7 +25,7 @@
 
   <class name="org.apache.giraph.io.gora.generated.GVertex" keyClass="java.lang.String" keyspace="graphGiraph">
     <field name="vertexId" family="vertices" qualifier="vertexId"/>
-    <field name="vertexValue" family="vertices" qualifier="vertexValue"/>
+    <field name="value" family="vertices" qualifier="value"/>
     <field name="edges" family="vertices" qualifier="edges"/>
   </class>
   

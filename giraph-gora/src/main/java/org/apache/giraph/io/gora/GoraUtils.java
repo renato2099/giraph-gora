@@ -37,8 +37,9 @@ public class GoraUtils {
    * Cassandra data store name.
    */
   public static final String CASSANDRA_STORE = "cassandra";
+
   /**
-   * Cassandra data store name.
+   * Hbase data store name.
    */
   public static final String HBASE_STORE = "hbase";
 
@@ -173,11 +174,15 @@ public class GoraUtils {
    */
   public static <K, T extends Persistent> Query<K, T>
   getQuery(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
-    // TODO the data store gets here FUCKED
     try {
-      pDataStore = (DataStore<K, T>) createSpecificDataStore(CASSANDRA_STORE,
-          String.class,
-          GVertex.class);
+      if (pDataStore == null) {
+        System.out.println("The data store was null");
+        pDataStore = (DataStore<K, T>) createSpecificDataStore(HBASE_STORE,
+            String.class,
+            GVertex.class);
+      } else {
+        System.out.println("The data store was not null");
+      }
     } catch (GoraException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

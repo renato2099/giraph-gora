@@ -25,6 +25,7 @@ import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
 import org.apache.gora.mapreduce.GoraMapReduceUtils;
 import org.apache.gora.persistency.impl.PersistentBase;
+import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.util.GoraException;
@@ -53,6 +54,12 @@ public abstract class GoraVertexInputFormat<
         V extends Writable,
         E extends Writable>
         extends VertexInputFormat<I, V, E> {
+
+  /** Start key for querying Gora data store. */
+  private static Object START_KEY;
+
+  /** End key for querying Gora data store. */
+  private static Object END_KEY;
 
   /** Logger for Gora's vertex input format. */
   private static final Logger LOG =
@@ -97,8 +104,9 @@ public abstract class GoraVertexInputFormat<
   /**
    * Initializes data store.
    */
-  public void initialize() {
-    DATA_STORE = getDataStore();
+  public void initialize(String dataStoreType) {
+    DATA_STORE = createDataStore(dataStoreType);
+    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
   }
 
   /**
@@ -109,10 +117,12 @@ public abstract class GoraVertexInputFormat<
    */
   public void initialize(Class<?> keyClass,
       Class<? extends PersistentBase> persistentClass,
-      Class<?> dataStoreClass) {
+      Class<?> dataStoreClass, String dataStoreType) {
     setPersistentClass(persistentClass);
     setKeyClass(keyClass);
     setDatastoreClass(dataStoreClass);
+    DATA_STORE = createDataStore(dataStoreType);
+    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
   }
 
   /**
@@ -139,28 +149,13 @@ public abstract class GoraVertexInputFormat<
     if (splits.size() > 0) {
       System.out.println("Guardamos algo de splits " + splits.size());
     }*/
-    DataStore tmpDs = getDataStore();
-    tmpDs.setKeyClass(String.class);
-    GORA_INPUT_FORMAT.setDataStore(tmpDs);
-    GORA_INPUT_FORMAT.setQuery(GoraUtils.getQuery(tmpDs));
+    Query qq = GoraUtils.getQuery(DATA_STORE, getStartKey(), getEndKey());
+    GORA_INPUT_FORMAT.setQuery(qq);
+    //GORA_INPUT_FORMAT.setQuery(context.getConfiguration(), qq);
     GoraMapReduceUtils.setIOSerializations(context.getConfiguration(), true);
-    GORA_INPUT_FORMAT.setQuery(context.getConfiguration(),
-        GoraUtils.getQuery(tmpDs));
  
     List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
     System.out.println("Habia partitions en getSplits" + splits.size());
-    /*if (splits != null) {
-      System.out.println("Habia partitions en getSplits" + splits.size());
-      String []locs = splits.get(0).getLocations();
-      if (locs != null) {
-        System.out.println("there were locations " + locs.length);
-      }
-      if (locs == null) {
-        System.out.println("there were no locations");
-      }
-    } else {
-      System.out.println("el input format sigue sin funcionar");
-    }*/
     return splits;
   }
 
@@ -168,18 +163,22 @@ public abstract class GoraVertexInputFormat<
    * Gets the data store object initialized.
    * @return DataStore created
    */
-  public DataStore getDataStore() {
+  public DataStore createDataStore(String dataStoreType) {
     try {
-      if (getKeyClass() == null) {
+      /*if (getKeyClass() == null) {
         System.out.println("No hay key class");
       }
       if (getPersistentClass() == null) {
         System.out.println("No hay persistent class");
+      }*/
+      if (dataStoreType == null || dataStoreType.equals("")) {
+        LOG.warn("Trying HBase as no other data store has been defined.");
+        dataStoreType = GoraUtils.HBASE_STORE;
       }
-      return GoraUtils.createSpecificDataStore(GoraUtils.HBASE_STORE,
+      return GoraUtils.createSpecificDataStore(dataStoreType,
           getKeyClass(), getPersistentClass());
     } catch (GoraException e) {
-      // TODO Auto-generated catch block
+      LOG.error("Error creating data store of type" + dataStoreType);
       e.printStackTrace();
       return null;
     }
@@ -195,10 +194,6 @@ public abstract class GoraVertexInputFormat<
     private Vertex<I, V, E> vertex;
     /** Results gotten from Gora data store. */
     private Result readResults;
-    /** Start key for querying Gora data store. */
-    private Object startKey;
-    /** End key for querying Gora data store. */
-    private Object endKey;
 
     @Override
     public void initialize(InputSplit inputSplit, TaskAttemptContext context)
@@ -224,7 +219,7 @@ public abstract class GoraVertexInputFormat<
         this.vertex = transformVertex(this.getReadResults().get());
         System.out.println("Transformado");
         System.out.println(this.vertex.toString());
-        ++RECORD_COUNTER;
+        RECORD_COUNTER++;
       } catch (Exception e) {
         LOG.debug("Error transforming vertices.");
         flg = false;
@@ -280,38 +275,6 @@ public abstract class GoraVertexInputFormat<
      */
     @Override
     public void close() throws IOException {
-    }
-
-    /**
-     * Gets the start key for querying.
-     * @return the start key.
-     */
-    public Object getStartKey() {
-      return startKey;
-    }
-
-    /**
-     * Gets the start key for querying.
-     * @param startKey start key.
-     */
-    public void setStartKey(Object startKey) {
-      this.startKey = startKey;
-    }
-
-    /**
-     * Gets the end key for querying.
-     * @return the end key.
-     */
-    Object getEndKey() {
-      return endKey;
-    }
-
-    /**
-     * Sets the end key for querying.
-     * @param pEndKey start key.
-     */
-    void setEndKey(Object pEndKey) {
-      this.endKey = pEndKey;
     }
 
     /**
@@ -376,5 +339,37 @@ public abstract class GoraVertexInputFormat<
    */
   public static void setDatastoreClass(Class<?> dATASTORE_CLASS) {
     DATASTORE_CLASS = dATASTORE_CLASS;
+  }
+
+  /**
+   * Gets the start key for querying.
+   * @return the start key.
+   */
+  public Object getStartKey() {
+    return START_KEY;
+  }
+
+  /**
+   * Gets the start key for querying.
+   * @param startKey start key.
+   */
+  public void setStartKey(Object startKey) {
+    this.START_KEY = startKey;
+  }
+
+  /**
+   * Gets the end key for querying.
+   * @return the end key.
+   */
+  Object getEndKey() {
+    return END_KEY;
+  }
+
+  /**
+   * Sets the end key for querying.
+   * @param pEndKey start key.
+   */
+  void setEndKey(Object pEndKey) {
+    this.END_KEY = pEndKey;
   }
 }

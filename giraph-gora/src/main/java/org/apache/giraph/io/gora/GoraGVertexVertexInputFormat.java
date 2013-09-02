@@ -51,7 +51,9 @@ public class GoraGVertexVertexInputFormat
   public void initialize() {
     setKeyClass(String.class);
     setPersistentClass(GVertex.class);
-    super.initialize();
+    setStartKey("1");
+    setEndKey("101");
+    super.initialize(GoraUtils.HBASE_STORE);
   }
 
   /**
@@ -85,6 +87,8 @@ public class GoraGVertexVertexInputFormat
       vertex = getConf().createVertex();
       GVertex tmpGVertex = (GVertex) goraObject;
 
+      System.out.println("[GORA_OBJECT]");
+      System.out.println(tmpGVertex.toString());
       LongWritable vrtxId = new LongWritable(
           Long.parseLong(tmpGVertex.getVertexId().toString()));
       DoubleWritable vrtxValue = new DoubleWritable(tmpGVertex.getValue());
@@ -95,12 +99,16 @@ public class GoraGVertexVertexInputFormat
           String keyVal = key.toString();
           String valVal = tmpGVertex.getEdges().get(key).toString();
           Edge<LongWritable, FloatWritable> edge;
-          edge = EdgeFactory.create(
-              new LongWritable(Long.parseLong(keyVal)),
-              new FloatWritable(Float.parseFloat(valVal)));
-          vertex.addEdge(edge);
+          if (!keyVal.contains("vertexId")) {
+            edge = EdgeFactory.create(
+                new LongWritable(Long.parseLong(keyVal)),
+                new FloatWritable(Float.parseFloat(valVal)));
+            vertex.addEdge(edge);
+          }
         }
       }
+      System.out.println("[GIRAPH_OBJECT]");
+      System.out.println(vertex.toString());
       return vertex;
     }
   }

@@ -104,6 +104,12 @@ under the License.
 
     <!-- provided dependencies. sorted lexicographically. -->
     <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase</artifactId>
+      <version>0.90.4</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.gora</groupId>
       <artifactId>gora-core</artifactId>
     </dependency>
@@ -116,11 +122,6 @@ under the License.
       <groupId>org.apache.gora</groupId>
       <artifactId>gora-hbase</artifactId>
       <version>0.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase</artifactId>
-      <version>0.90.4</version>
     </dependency>
     <dependency>
 	    <groupId>xerces</groupId>
