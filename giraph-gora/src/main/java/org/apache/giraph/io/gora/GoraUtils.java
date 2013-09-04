@@ -114,10 +114,11 @@ public class GoraUtils {
    * @throws GoraException  if an error occurs.
    */
   public static <K, T extends Persistent> DataStore<K, T>
-  createSpecificDataStore(String pDataStoreType, Class<K> keyClass,
-      Class<T> persistentClass) throws GoraException {
+  createSpecificDataStore(Class<? extends DataStore> dataStoreClass,
+      Class<K> keyClass, Class<T> persistentClass) throws GoraException {
     // Getting the specific data store
-    DATASTORECLASS = getSpecificDataStore(pDataStoreType);
+    //DATASTORECLASS = getSpecificDataStore(pDataStoreType);
+    DATASTORECLASS = dataStoreClass;
     return createDataStore(keyClass, persistentClass);
   }
 
@@ -174,7 +175,7 @@ public class GoraUtils {
    */
   public static <K, T extends Persistent> Query<K, T>
   getQuery(DataStore<K, T> pDataStore, K pStartKey, K pEndKey) {
-    try {
+    /*try {
       if (pDataStore == null) {
         System.out.println("The data store was null");
         pDataStore = (DataStore<K, T>) createSpecificDataStore(HBASE_STORE,
@@ -186,7 +187,7 @@ public class GoraUtils {
     } catch (GoraException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }
+    }*/
     Query<K, T> query = pDataStore.newQuery();
     query.setFields("vertexId", "value", "edges");
     query.setStartKey(pStartKey);

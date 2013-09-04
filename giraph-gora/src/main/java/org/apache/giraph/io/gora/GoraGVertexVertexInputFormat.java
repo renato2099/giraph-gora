@@ -42,7 +42,11 @@ public class GoraGVertexVertexInputFormat
    * DEfault constructor
    */
   public GoraGVertexVertexInputFormat() {
-    this.initialize();
+    //this.initialize();
+    super.initialize(String.class, GVertex.class,
+        org.apache.gora.hbase.store.HBaseStore.class);
+    setStartKey("1");
+    setEndKey("101");
   }
 
   /**
@@ -53,7 +57,7 @@ public class GoraGVertexVertexInputFormat
     setPersistentClass(GVertex.class);
     setStartKey("1");
     setEndKey("101");
-    super.initialize(GoraUtils.HBASE_STORE);
+    //super.initialize(GoraUtils.HBASE_STORE);
   }
 
   /**
@@ -65,7 +69,6 @@ public class GoraGVertexVertexInputFormat
   @Override
   public GoraVertexReader createVertexReader(
       InputSplit split, TaskAttemptContext context) throws IOException {
-    //System.out.println("Inside createVertexReader method");
     return new GoraGVertexVertexReader();
   }
 
@@ -87,8 +90,8 @@ public class GoraGVertexVertexInputFormat
       vertex = getConf().createVertex();
       GVertex tmpGVertex = (GVertex) goraObject;
 
-      System.out.println("[GORA_OBJECT]");
-      System.out.println(tmpGVertex.toString());
+      //System.out.println("[GORA_OBJECT]");
+      //System.out.println(tmpGVertex.toString());
       LongWritable vrtxId = new LongWritable(
           Long.parseLong(tmpGVertex.getVertexId().toString()));
       DoubleWritable vrtxValue = new DoubleWritable(tmpGVertex.getValue());
@@ -107,8 +110,8 @@ public class GoraGVertexVertexInputFormat
           }
         }
       }
-      System.out.println("[GIRAPH_OBJECT]");
-      System.out.println(vertex.toString());
+      //System.out.println("[GIRAPH_OBJECT]");
+      //System.out.println(vertex.toString());
       return vertex;
     }
   }

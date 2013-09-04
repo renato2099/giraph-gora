@@ -24,7 +24,7 @@ import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
 import org.apache.gora.mapreduce.GoraMapReduceUtils;
-import org.apache.gora.persistency.impl.PersistentBase;
+import org.apache.gora.persistency.Persistent;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
@@ -69,10 +69,10 @@ public abstract class GoraVertexInputFormat<
   private static Class<?> KEY_CLASS;
 
   /** The vertex itself will be used as a value inside Gora. */
-  private static Class<? extends PersistentBase> PERSISTENT_CLASS;
+  private static Class<? extends Persistent> PERSISTENT_CLASS;
 
   /** Data store class to be used as backend. */
-  private static Class<?> DATASTORE_CLASS;
+  private static Class<? extends DataStore> DATASTORE_CLASS;
 
   /** Data store used for querying data. */
   private static DataStore DATA_STORE;
@@ -105,8 +105,8 @@ public abstract class GoraVertexInputFormat<
    * Initializes data store.
    */
   public void initialize(String dataStoreType) {
-    DATA_STORE = createDataStore(dataStoreType);
-    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
+    //DATA_STORE = createDataStore(dataStoreType);
+    //GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
   }
 
   /**
@@ -116,12 +116,12 @@ public abstract class GoraVertexInputFormat<
    * @param dataStoreClass Data store used as backend.
    */
   public void initialize(Class<?> keyClass,
-      Class<? extends PersistentBase> persistentClass,
-      Class<?> dataStoreClass, String dataStoreType) {
+      Class<? extends Persistent> persistentClass,
+      Class<? extends DataStore> dataStoreClass) {
     setPersistentClass(persistentClass);
     setKeyClass(keyClass);
     setDatastoreClass(dataStoreClass);
-    DATA_STORE = createDataStore(dataStoreType);
+    DATA_STORE = createDataStore();
     GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
   }
 
@@ -134,28 +134,15 @@ public abstract class GoraVertexInputFormat<
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
-    /*List<PartitionQuery> queries = dataStore.getPartitions(
-        GoraUtils.getQuery(dataStore));
-    if (queries != null) {
-      System.out.println("Habia partitions en getSplits" + queries.size());
-    }
-    if (GoraUtils.getQuery(dataStore) != null) {
-      System.out.println("Conseguimos crear una query getSplits");
-    }
-    List<InputSplit> splits = new ArrayList<InputSplit>(queries.size());
-    for(PartitionQuery query : queries) {
-      splits.add(new GoraInputSplit(context.getConfiguration(), query));
-    }
-    if (splits.size() > 0) {
-      System.out.println("Guardamos algo de splits " + splits.size());
-    }*/
-    Query qq = GoraUtils.getQuery(DATA_STORE, getStartKey(), getEndKey());
-    GORA_INPUT_FORMAT.setQuery(qq);
+    Query tmpQuery = GoraUtils.getQuery(DATA_STORE, getStartKey(), getEndKey());
+    GORA_INPUT_FORMAT.setQuery(tmpQuery);
     //GORA_INPUT_FORMAT.setQuery(context.getConfiguration(), qq);
-    GoraMapReduceUtils.setIOSerializations(context.getConfiguration(), true);
+    //GoraMapReduceUtils.setIOSerializations
+    //(context.getConfiguration(), true);
  
     List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
-    System.out.println("Habia partitions en getSplits" + splits.size());
+    System.out.println("Habia partitions en getSplits " + splits.size());
+    
     return splits;
   }
 
@@ -163,25 +150,16 @@ public abstract class GoraVertexInputFormat<
    * Gets the data store object initialized.
    * @return DataStore created
    */
-  public DataStore createDataStore(String dataStoreType) {
+  public DataStore createDataStore() {
+    DataStore dsCreated = null;
     try {
-      /*if (getKeyClass() == null) {
-        System.out.println("No hay key class");
-      }
-      if (getPersistentClass() == null) {
-        System.out.println("No hay persistent class");
-      }*/
-      if (dataStoreType == null || dataStoreType.equals("")) {
-        LOG.warn("Trying HBase as no other data store has been defined.");
-        dataStoreType = GoraUtils.HBASE_STORE;
-      }
-      return GoraUtils.createSpecificDataStore(dataStoreType,
+      dsCreated = GoraUtils.createSpecificDataStore(getDatastoreClass(),
           getKeyClass(), getPersistentClass());
     } catch (GoraException e) {
-      LOG.error("Error creating data store of type" + dataStoreType);
+      LOG.error("Error creating data store.");
       e.printStackTrace();
-      return null;
     }
+    return dsCreated;
   }
 
   /**
@@ -217,14 +195,12 @@ public abstract class GoraVertexInputFormat<
       try {
         flg = this.getReadResults().next();
         this.vertex = transformVertex(this.getReadResults().get());
-        System.out.println("Transformado");
-        System.out.println(this.vertex.toString());
         RECORD_COUNTER++;
       } catch (Exception e) {
         LOG.debug("Error transforming vertices.");
         flg = false;
       }
-      System.out.println("Transformamos " + RECORD_COUNTER + " registros");
+      LOG.debug("Transformamos " + RECORD_COUNTER + " registros");
       return flg;
     }
     // CHECKSTYLE: resume IllegalCatch
@@ -298,7 +274,7 @@ public abstract class GoraVertexInputFormat<
    * Gets the persistent Class
    * @return persistentClass used
    */
-  static Class<? extends PersistentBase> getPersistentClass() {
+  static Class<? extends Persistent> getPersistentClass() {
     return PERSISTENT_CLASS;
   }
 
@@ -307,7 +283,7 @@ public abstract class GoraVertexInputFormat<
    * @param persistentClassUsed to be set
    */
   static void setPersistentClass
-  (Class<? extends PersistentBase> persistentClassUsed) {
+  (Class<? extends Persistent> persistentClassUsed) {
     PERSISTENT_CLASS = persistentClassUsed;
   }
 
@@ -330,14 +306,14 @@ public abstract class GoraVertexInputFormat<
   /**
    * @return the dATASTORE_CLASS
    */
-  public static Class<?> getDatastoreClass() {
+  public static Class<? extends DataStore> getDatastoreClass() {
     return DATASTORE_CLASS;
   }
 
   /**
    * @param dATASTORE_CLASS the dATASTORE_CLASS to set
    */
-  public static void setDatastoreClass(Class<?> dATASTORE_CLASS) {
+  public static void setDatastoreClass(Class<? extends DataStore> dATASTORE_CLASS) {
     DATASTORE_CLASS = dATASTORE_CLASS;
   }
 
