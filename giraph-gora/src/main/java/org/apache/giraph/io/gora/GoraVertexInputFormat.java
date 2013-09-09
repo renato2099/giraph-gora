@@ -17,13 +17,22 @@
  */
 package org.apache.giraph.io.gora;
 
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_DATASTORE_CLASS;
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_END_KEY;
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_KEYS_FACTORY_CLASS;
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_KEY_CLASS;
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_PERSISTENT_CLASS;
+import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_START_KEY;
+
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
-import org.apache.gora.mapreduce.GoraMapReduceUtils;
+import org.apache.giraph.io.gora.utils.KeyFactory;
+import org.apache.giraph.io.gora.utils.ExtraGoraInputFormat;
+import org.apache.giraph.io.gora.utils.GoraUtils;
 import org.apache.gora.persistency.Persistent;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
@@ -74,6 +83,9 @@ public abstract class GoraVertexInputFormat<
   /** Data store class to be used as backend. */
   private static Class<? extends DataStore> DATASTORE_CLASS;
 
+  /** Class used to transform strings into Keys */
+  private static Class<?> KEY_FACTORY_CLASS;
+
   /** Data store used for querying data. */
   private static DataStore DATA_STORE;
 
@@ -85,7 +97,31 @@ public abstract class GoraVertexInputFormat<
          new ExtraGoraInputFormat();
 
   /** @param conf configuration parameters */
-  public void checkInputSpecs(Configuration conf) { }
+  public void checkInputSpecs(Configuration conf) {
+    String sDataStoreType =
+        GIRAPH_GORA_DATASTORE_CLASS.get(getConf());
+    String sKeyType =
+        GIRAPH_GORA_KEY_CLASS.get(getConf());
+    String sPersistentType =
+        GIRAPH_GORA_PERSISTENT_CLASS.get(getConf());
+    String sKeyFactoryClass =
+        GIRAPH_GORA_KEYS_FACTORY_CLASS.get(getConf());
+    try {
+      Class<?> keyClass = Class.forName(sKeyType);
+      Class<?> persistentClass = Class.forName(sPersistentType);
+      Class<?> dataStoreClass = Class.forName(sDataStoreType);
+      Class<?> keyFactoryClass = Class.forName(sKeyFactoryClass);
+      setKeyClass(keyClass);
+      setPersistentClass((Class<? extends Persistent>) persistentClass);
+      setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
+      setKeyFactoryClass(keyFactoryClass);
+      DATA_STORE = createDataStore();
+      GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
+    } catch (ClassNotFoundException e) {
+      LOG.error("Error while reading Gora Input parameters");
+      e.printStackTrace();
+    }
+  }
 
   /**
    * Create a vertex reader for a given split. Guaranteed to have been
@@ -102,30 +138,6 @@ public abstract class GoraVertexInputFormat<
     TaskAttemptContext context) throws IOException;
 
   /**
-   * Initializes data store.
-   */
-  public void initialize(String dataStoreType) {
-    //DATA_STORE = createDataStore(dataStoreType);
-    //GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
-  }
-
-  /**
-   * Initializes all needed parameters.
-   * @param keyClass Key class used.
-   * @param persistentClass Persistent class used.
-   * @param dataStoreClass Data store used as backend.
-   */
-  public void initialize(Class<?> keyClass,
-      Class<? extends Persistent> persistentClass,
-      Class<? extends DataStore> dataStoreClass) {
-    setPersistentClass(persistentClass);
-    setKeyClass(keyClass);
-    setDatastoreClass(dataStoreClass);
-    DATA_STORE = createDataStore();
-    GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
-  }
-
-  /**
    * Gets the splits for a data store.
    * @param context JobContext
    * @param minSplitCountHint Hint for a minimum split count
@@ -134,15 +146,21 @@ public abstract class GoraVertexInputFormat<
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
+    KeyFactory kFact = new KeyFactory();
+    String sKey = GIRAPH_GORA_START_KEY.get(getConf());
+    String eKey = GIRAPH_GORA_END_KEY.get(getConf());
+    if (sKey == null || sKey.isEmpty()) {
+      LOG.error("No start key has been defined.");
+      LOG.warn("Querying all the data store.");
+      sKey = null;
+      eKey = null;
+    }
+    kFact.setDataStore(DATA_STORE);
+    setStartKey(kFact.buildKey(sKey));
+    setEndKey(kFact.buildKey(eKey));
     Query tmpQuery = GoraUtils.getQuery(DATA_STORE, getStartKey(), getEndKey());
     GORA_INPUT_FORMAT.setQuery(tmpQuery);
-    //GORA_INPUT_FORMAT.setQuery(context.getConfiguration(), qq);
-    //GoraMapReduceUtils.setIOSerializations
-    //(context.getConfiguration(), true);
- 
     List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
-    System.out.println("Habia partitions en getSplits " + splits.size());
-    
     return splits;
   }
 
@@ -189,9 +207,7 @@ public abstract class GoraVertexInputFormat<
     @Override
     // CHECKSTYLE: stop IllegalCatch
     public boolean nextVertex() throws IOException, InterruptedException {
-      System.out.println("Reading vertices from Gora");
       boolean flg = false;
-      
       try {
         flg = this.getReadResults().next();
         this.vertex = transformVertex(this.getReadResults().get());
@@ -304,17 +320,18 @@ public abstract class GoraVertexInputFormat<
   }
 
   /**
-   * @return the dATASTORE_CLASS
+   * @return Class the DATASTORE_CLASS
    */
   public static Class<? extends DataStore> getDatastoreClass() {
     return DATASTORE_CLASS;
   }
 
   /**
-   * @param dATASTORE_CLASS the dATASTORE_CLASS to set
+   * @param dataStoreClass the dataStore class to set
    */
-  public static void setDatastoreClass(Class<? extends DataStore> dATASTORE_CLASS) {
-    DATASTORE_CLASS = dATASTORE_CLASS;
+  public static void setDatastoreClass(
+      Class<? extends DataStore> dataStoreClass) {
+    DATASTORE_CLASS = dataStoreClass;
   }
 
   /**
@@ -347,5 +364,21 @@ public abstract class GoraVertexInputFormat<
    */
   void setEndKey(Object pEndKey) {
     this.END_KEY = pEndKey;
+  }
+
+  /**
+   * Gets the key factory class.
+   * @return the kEY_FACTORY_CLASS
+   */
+  static Class<?> getKeyFactoryClass() {
+    return KEY_FACTORY_CLASS;
+  }
+
+  /**
+   * Sets the key factory class.
+   * @param keyFactoryClass the keyFactoryClass to set.
+   */
+  static void setKeyFactoryClass(Class<?> keyFactoryClass) {
+    KEY_FACTORY_CLASS = keyFactoryClass;
   }
 }

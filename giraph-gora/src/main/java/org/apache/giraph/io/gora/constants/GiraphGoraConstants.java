@@ -30,34 +30,32 @@ public interface GiraphGoraConstants {
                       "Gora DataStore class to access to data from. " +
                       "- required");
 
-  /** Gora data store class which provides data access. */
+  /** Gora key class to query the data store. */
   StrConfOption GIRAPH_GORA_KEY_CLASS =
-    new StrConfOption("giraph.gora.datastore.class", null,
-                      "Gora DataStore class to access to data from. " +
+    new StrConfOption("giraph.gora.key.class", null,
+                      "Gora Key class to query the datastore. " +
                       "- required");
 
-  /** Gora data store class which provides data access. */
+  /** Gora persistent class to query the data store. */
   StrConfOption GIRAPH_GORA_PERSISTENT_CLASS =
-    new StrConfOption("giraph.gora.datastore.class", null,
-                      "Gora DataStore class to access to data from. " +
+    new StrConfOption("giraph.gora.persistent.class", null,
+                      "Gora Persistent class to read objects from Gora. " +
                       "- required");
 
-  /** Gora data store class which provides data access. */
+  /** Gora start key to query the datastore. */
   StrConfOption GIRAPH_GORA_START_KEY =
-    new StrConfOption("giraph.gora.datastore.class", null,
-                      "Gora DataStore class to access to data from. " +
-                      "- required");
+    new StrConfOption("giraph.gora.start.key", null,
+                      "Gora start key to query the datastore. ");
 
-  /** Gora data store class which provides data access. */
-  StrConfOption GIRAPH_GORA_END_CLASS =
-    new StrConfOption("giraph.gora.datastore.class", null,
-                      "Gora DataStore class to access to data from. " +
-                      "- required");
+  /** Gora end key to query the datastore. */
+  StrConfOption GIRAPH_GORA_END_KEY =
+    new StrConfOption("giraph.gora.end.key", null,
+                      "Gora end key to query the datastore. ");
 
   /** Gora data store class which provides data access. */
   StrConfOption GIRAPH_GORA_KEYS_FACTORY_CLASS =
     new StrConfOption("giraph.gora.keys.factory.class", null,
-                      "Gora DataStore class to access to data from. " +
+                      "Keys factory to convert strings into desired keys" +
                       "- required");
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck
