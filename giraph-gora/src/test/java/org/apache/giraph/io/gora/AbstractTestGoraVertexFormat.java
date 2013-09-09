@@ -19,7 +19,10 @@
 package org.apache.giraph.io.gora;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.avro.util.Utf8;
 import org.apache.giraph.io.gora.generated.GVertex;
 import org.apache.gora.memory.store.MemStore;
 import org.apache.gora.store.DataStore;
@@ -43,14 +46,33 @@ public abstract class AbstractTestGoraVertexFormat{
   public void setUp() throws Exception {
     memStore = DataStoreFactory.getDataStore(
         MemStore.class, String.class, GVertex.class, new Configuration());
-    memStore.put("1", new GVertex());
-    memStore.put("10", new GVertex());
-    memStore.put("100", new GVertex());
+    memStore.put("1", createVertex("1", null));
+    memStore.put("100", createVertex("100", null));
+    Map<String, String> edges = new HashMap<String, String> ();
+    edges.put("1", "1");
+    edges.put("1", "100");
+    memStore.put("10", createVertex("10", edges));
     memStore.flush();
   }
 
   @After
   public void tearDown() throws IOException {
     memStore.close();
+  }
+
+  /**
+   * Creates a vertex using an id and a set of edges.
+   * @param id Vertex id.
+   * @param edges Set of edges.
+   * @return GVertex created.
+   */
+  public static GVertex createVertex(String id, Map<String, String> edges) {
+    GVertex newVrtx = new GVertex();
+    newVrtx.setVertexId(new Utf8(id));
+    if (edges != null) {
+      for (String edgeId : edges.keySet())
+        newVrtx.putToEdges(new Utf8(edgeId), new Utf8(edges.get(edgeId)));
+    }
+    return newVrtx;
   }
 }

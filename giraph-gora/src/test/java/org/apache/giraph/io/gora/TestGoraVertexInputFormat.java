@@ -25,17 +25,13 @@ import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GOR
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_START_KEY;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.io.gora.generated.GVertex;
 import org.apache.giraph.utils.InternalVertexRunner;
-import org.apache.gora.memory.store.MemStore;
-import org.apache.gora.store.DataStore;
-import org.apache.gora.store.DataStoreFactory;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -49,14 +45,6 @@ public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
 
   @Test
   public void getEmptyDb() throws Exception {
-    memStore = DataStoreFactory.getDataStore(
-        MemStore.class, String.class, GVertex.class, new Configuration());
-    memStore.put("1", new GVertex());
-    memStore.put("10", new GVertex());
-    memStore.put("100", new GVertex());
-    memStore.flush();
-    System.out.println("la recontra caca" + memStore.get("1"));
-
     Iterable<String>    results;
     Iterator<String>    result;
     GiraphConfiguration conf    = new GiraphConfiguration();
@@ -83,14 +71,16 @@ public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
   @Test
   public void getTestDb() throws Exception {
     Iterable<String>    results;
-    Iterator<String>    result;
     GiraphConfiguration conf    = new GiraphConfiguration();
-    GIRAPH_GORA_DATASTORE_CLASS.set(conf, "org.apache.gora.memory.store.MemStore");
-    GIRAPH_GORA_KEYS_FACTORY_CLASS.set(conf,"org.apache.giraph.io.gora.utils.KeyFactory");
+    GIRAPH_GORA_DATASTORE_CLASS.
+    set(conf, "org.apache.gora.memory.store.MemStore");
+    GIRAPH_GORA_KEYS_FACTORY_CLASS.
+    set(conf,"org.apache.giraph.io.gora.utils.KeyFactory");
     GIRAPH_GORA_KEY_CLASS.set(conf,"java.lang.String");
-    GIRAPH_GORA_PERSISTENT_CLASS.set(conf,"org.apache.giraph.io.gora.generated.GVertex");
+    GIRAPH_GORA_PERSISTENT_CLASS.
+    set(conf,"org.apache.giraph.io.gora.generated.GVertex");
     GIRAPH_GORA_START_KEY.set(conf,"1");
-    GIRAPH_GORA_END_KEY.set(conf,"10");
+    GIRAPH_GORA_END_KEY.set(conf,"100");
     conf.set("io.serializations",
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
@@ -98,19 +88,9 @@ public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
     conf.setVertexInputFormatClass(GoraGVertexVertexInputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
-    /*Iterable<String>    results;
-    expectedFileUrl =
-      this.getClass().getResource(dbName + super.OUTPUT_JSON_EXT);
-    expectedFile = new File(expectedFileUrl.toURI());
-    expected = Files.readLines(expectedFile, Charsets.UTF_8).iterator();
-    result   = results.iterator();
-
-    while(expected.hasNext() && result.hasNext()) {
-      String resultLine   = (String) result.next();
-      String expectedLine = (String) expected.next();
-
-      Assert.assertTrue(expectedLine.equals(resultLine));
-    }*/
+    if (results instanceof Collection<?>) {
+      Assert.assertTrue((((Collection<?>)results).size())>=0);
+    }
   }
 
   /*
