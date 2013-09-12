@@ -1,84 +1,96 @@
 ----------------------------------------------------------------
-2013-07-23 22:51:18.359 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619877291/metastore_db  
+2013-09-10 01:09:58.600 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a816c00e-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/jython-test-1378775396560/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:28.289 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 33c901f8-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619888137/metastore_db  
+2013-09-10 01:10:13.775 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 33c901f8-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/jython-test-1378775413667/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:35.133 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 8f8e442f-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619894954/metastore_db  
+2013-09-10 01:10:22.491 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 69f443e2-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775422356/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:41.254 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a50b0619-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619901079/metastore_db  
+2013-09-10 01:10:28.285 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance ca9885cc-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775428202/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:42.349 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 3e81c6d6-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619902292/metastore_db  
+2013-09-10 01:10:34.366 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a500c803-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775434307/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:47.075 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance b488c8be-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619907018/metastore_db  
+2013-09-10 01:10:39.778 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 0f6f89ed-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775439735/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:47.872 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 5af3c97b-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619907748/metastore_db  
+2013-09-10 01:10:40.286 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 7dc74aaa-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775440243/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:48.549 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance c4410a38-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619908477/metastore_db  
+2013-09-10 01:10:41.725 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance c6d64c92-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775441640/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:53.954 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance ed0c4c22-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619913864/metastore_db  
+2013-09-10 01:10:42.360 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 82224d4f-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775442298/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:51:59.725 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 40508e0c-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619919658/metastore_db  
+2013-09-10 01:10:42.892 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 40508e0c-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775442816/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:52:06.016 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance ac28d043-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619925908/metastore_db  
+2013-09-10 01:10:45.931 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 3e0dcff6-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775445880/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:52:11.458 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 0937922d-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619931390/metastore_db  
+2013-09-10 01:10:51.467 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 664411e0-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775451417/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:52:17.478 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance a6b49415-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619937403/metastore_db  
+2013-09-10 01:10:57.236 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 50bf5417-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775457185/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2013-07-23 22:52:20.255 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 64c81641-0140-0dba-c279-000003f810c8
-on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1374619940203/metastore_db  
+2013-09-10 01:11:02.509 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 02c01601-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775462446/metastore_db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2013-09-10 01:11:07.701 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 734517e9-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775467656/metastore_db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2013-09-10 01:11:13.942 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.4.2.0 - (689064): instance 45749a15-0141-056a-f369-000003f82dc0
+on database directory /private/var/folders/rn/6y55snyd7v7ctn1sszmgmn280000gn/T/giraph-hive-1378775473865/metastore_db  
 
 Database Class Loader started - derby.database.classpath=''
