@@ -57,5 +57,25 @@ public interface GiraphGoraConstants {
     new StrConfOption("giraph.gora.keys.factory.class", null,
                       "Keys factory to convert strings into desired keys" +
                       "- required");
+
+  // OUTPUT
+  /** Gora data store class which provides data access. */
+  StrConfOption GIRAPH_GORA_OUTPUT_DATASTORE_CLASS =
+    new StrConfOption("giraph.gora.output.datastore.class", null,
+                      "Gora DataStore class to write data to. " +
+                      "- required");
+  
+  
+  /** Gora key class to query the data store. */
+  StrConfOption GIRAPH_GORA_OUTPUT_KEY_CLASS =
+    new StrConfOption("giraph.gora.output.key.class", null,
+                      "Gora Key class to write to datastore. " +
+                      "- required");
+
+  /** Gora persistent class to query the data store. */
+  StrConfOption GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS =
+    new StrConfOption("giraph.gora.output.persistent.class", null,
+                      "Gora Persistent class to write to Gora. " +
+                      "- required");
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck

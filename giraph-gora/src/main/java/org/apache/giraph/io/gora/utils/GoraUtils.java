@@ -36,11 +36,6 @@ public class GoraUtils {
   private static Class<? extends DataStore> DATASTORECLASS;
 
   /**
-   * Query to be used for Gora operations.
-   */
-  private static Query QUERY;
-
-  /**
    * Attribute handling configuration for data stores.
    */
   private static Configuration CONF = new Configuration();

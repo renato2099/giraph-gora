@@ -115,8 +115,8 @@ public abstract class GoraVertexInputFormat<
       setPersistentClass((Class<? extends Persistent>) persistentClass);
       setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
       setKeyFactoryClass(keyFactoryClass);
-      DATA_STORE = createDataStore();
-      GORA_INPUT_FORMAT.setDataStore(DATA_STORE);
+      setDataStore(createDataStore());
+      GORA_INPUT_FORMAT.setDataStore(getDataStore());
     } catch (ClassNotFoundException e) {
       LOG.error("Error while reading Gora Input parameters");
       e.printStackTrace();
@@ -155,10 +155,11 @@ public abstract class GoraVertexInputFormat<
       sKey = null;
       eKey = null;
     }
-    kFact.setDataStore(DATA_STORE);
+    kFact.setDataStore(getDataStore());
     setStartKey(kFact.buildKey(sKey));
     setEndKey(kFact.buildKey(eKey));
-    Query tmpQuery = GoraUtils.getQuery(DATA_STORE, getStartKey(), getEndKey());
+    Query tmpQuery = GoraUtils.getQuery(
+        getDataStore(), getStartKey(), getEndKey());
     GORA_INPUT_FORMAT.setQuery(tmpQuery);
     List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
     return splits;
@@ -257,7 +258,7 @@ public abstract class GoraVertexInputFormat<
      * Performs a range query to a Gora data store.
      */
     protected void getResults() {
-      setReadResults(GoraUtils.getRequest(DATA_STORE,
+      setReadResults(GoraUtils.getRequest(getDataStore(),
           getStartKey(), getEndKey()));
     }
 
@@ -346,15 +347,15 @@ public abstract class GoraVertexInputFormat<
    * Gets the start key for querying.
    * @param startKey start key.
    */
-  public void setStartKey(Object startKey) {
-    this.START_KEY = startKey;
+  public static void setStartKey(Object startKey) {
+    START_KEY = startKey;
   }
 
   /**
    * Gets the end key for querying.
    * @return the end key.
    */
-  Object getEndKey() {
+  static Object getEndKey() {
     return END_KEY;
   }
 
@@ -362,8 +363,8 @@ public abstract class GoraVertexInputFormat<
    * Sets the end key for querying.
    * @param pEndKey start key.
    */
-  void setEndKey(Object pEndKey) {
-    this.END_KEY = pEndKey;
+  static void setEndKey(Object pEndKey) {
+    END_KEY = pEndKey;
   }
 
   /**
@@ -380,5 +381,21 @@ public abstract class GoraVertexInputFormat<
    */
   static void setKeyFactoryClass(Class<?> keyFactoryClass) {
     KEY_FACTORY_CLASS = keyFactoryClass;
+  }
+
+  /**
+   * Gets the data store.
+   * @return DataStore
+   */
+  public static DataStore getDataStore() {
+    return DATA_STORE;
+  }
+
+  /**
+   * Sets the data store
+   * @param dStore the dATA_STORE to set
+   */
+  public static void setDataStore(DataStore dStore) {
+    DATA_STORE = dStore;
   }
 }
