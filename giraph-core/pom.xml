@@ -40,6 +40,12 @@ under the License.
   </properties>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <finalName>giraph-${project.version}-${forHadoop}</finalName>
     <plugins>
       <plugin>
@@ -455,6 +461,10 @@ under the License.
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.airlift</groupId>
+      <artifactId>airline</artifactId>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
