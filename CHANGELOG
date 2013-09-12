@@ -1,6 +1,53 @@
 Giraph Change Log
 
 Release 1.1.0 - unreleased
+  GIRAPH-727: Support for Watts Strogatz VertexInputFormat (claudio)
+
+  GIRAPH-746: Track and log versions of dependencies (nitay)
+
+  GIRAPH-751: Build error: convertEdgeToLine in two different classes have the 
+  same erasure, yet neither overrides the other (aarmax0 via claudio)
+
+  GIRAPH-732: EdgeOutputFormat (aarmax00 via claudio)
+
+  GIRAPH-512: JavaDoc warnings (tdn120 via nitay)
+
+  GIRAPH-736: Bring back FindBugs (nitay)
+
+  GIRAPH-735: DiskBackedPartitionStore throws NPE due to uninitialized OutEdges
+  (claudio)
+
+  GIRAPH-734: DiskBackedPartitionStore attempting to release a lock it doesn't own
+  (cmuchinsky via claudio)
+
+  GIRAPH-739: Discrepancy among numeric constants corresponding to frequency of 
+  writing in TextAggregatorWriter (korlando via claudio)
+
+  GIRAPH-740: ArrayListWritable object is not cleared in readFields()
+  (korlando via claudio)
+
+  GIRAPH-692: Add Bracha Toueg Deadlock Detection in the examples 
+  (aarmax00 via claudio)
+
+  GIRAPH-717: HiveJythonRunner with support for pure Jython value types (nitay)
+
+  GIRAPH-722: ProgressableUtils.waitForever is not calling progress (majakabiljo)
+
+  GIRAPH-549: Tinkerpop/Blueprints/Rexter InputFormat (armax00 via claudio)
+
+  GIRAPH-701: Communication improvement using one-to-all message
+  sending (Bingjing via aching)
+
+  GIRAPH-721: Don't call progress on each edge/vertex loaded (majakabiljo)
+
+  GIRAPH-720: Provide a way to change job name (majakabiljo)
+
+  GIRAPH-718: Output all per-superstep metrics per superstep (majakabiljo)
+
+  GIRAPH-716: Stop modifying Configuration since it's not thread-safe (majakabiljo)
+
+  GIRAPH-715: Fix MessageValueFactory performance regression (nitay)
+
   GIRAPH-709: More flexible Jython script loading (nitay)
 
   GIRAPH-708: Factories for creation of all IVEM types (nitay)
