@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.6">
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/conf/GiraphRexsterConstants.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/conf/package-info.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/formats/package-info.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/formats/RexsterLongDoubleFloatVertexInputFormat.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/formats/RexsterLongFloatEdgeInputFormat.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/package-info.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/RexsterEdgeInputFormat.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/RexsterInputSplit.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/io/RexsterVertexInputFormat.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/utils/package-info.java">
+</file>
+<file name="/Users/renatomarroquin/Documents/workspace/workspaceGiraph/giraph/giraph-rexster/src/main/java/org/apache/giraph/rexster/utils/RexsterUtils.java">
+</file>
+</checkstyle>

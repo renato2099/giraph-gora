@@ -1,0 +1,3 @@
+org/apache/giraph/rexster/io/formats/TestAbstractRexsterInputFormat.class
+org/apache/giraph/rexster/io/formats/TestRexsterLongDoubleFloatVertexInputFormat$EmptyComputation.class
+org/apache/giraph/rexster/io/formats/TestRexsterLongDoubleFloatVertexInputFormat.class

@@ -1,0 +1,13 @@
+org/apache/giraph/rexster/utils/RexsterUtils.class
+org/apache/giraph/rexster/io/formats/RexsterLongFloatEdgeInputFormat.class
+org/apache/giraph/rexster/io/RexsterEdgeInputFormat$RexsterEdgeReader.class
+org/apache/giraph/rexster/io/RexsterVertexInputFormat.class
+org/apache/giraph/rexster/utils/RexsterUtils$Vertex.class
+org/apache/giraph/rexster/conf/GiraphRexsterConstants.class
+org/apache/giraph/rexster/io/RexsterInputSplit.class
+org/apache/giraph/rexster/io/RexsterEdgeInputFormat.class
+org/apache/giraph/rexster/io/formats/RexsterLongDoubleFloatVertexInputFormat$RexsterLongDoubleFloatVertexReader.class
+org/apache/giraph/rexster/io/RexsterVertexInputFormat$RexsterVertexReader.class
+org/apache/giraph/rexster/io/formats/RexsterLongDoubleFloatVertexInputFormat.class
+org/apache/giraph/rexster/io/formats/RexsterLongFloatEdgeInputFormat$RexsterLongFloatEdgeReader.class
+org/apache/giraph/rexster/utils/RexsterUtils$Edge.class
