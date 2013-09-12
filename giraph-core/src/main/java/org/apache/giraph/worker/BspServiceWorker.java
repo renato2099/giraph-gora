@@ -32,6 +32,7 @@ import org.apache.giraph.comm.netty.NettyWorkerClientRequestProcessor;
 import org.apache.giraph.comm.netty.NettyWorkerServer;
 import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.AddressesAndPartitionsWritable;
 import org.apache.giraph.graph.FinishedSuperstepStats;
 import org.apache.giraph.graph.GlobalStats;
@@ -40,6 +41,8 @@ import org.apache.giraph.graph.InputSplitEvents;
 import org.apache.giraph.graph.InputSplitPaths;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexEdgeCount;
+import org.apache.giraph.io.EdgeOutputFormat;
+import org.apache.giraph.io.EdgeWriter;
 import org.apache.giraph.io.VertexOutputFormat;
 import org.apache.giraph.io.VertexWriter;
 import org.apache.giraph.io.superstep_output.SuperstepOutput;
@@ -92,6 +95,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -573,7 +577,7 @@ public class BspServiceWorker<I extends WritableComparable,
               partition.getVertexCount(),
               0,
               partition.getEdgeCount(),
-              0);
+              0, 0);
       partitionStatsList.add(partitionStats);
       getPartitionStore().putPartition(partition);
     }
@@ -741,9 +745,11 @@ public class BspServiceWorker<I extends WritableComparable,
     getGraphTaskManager().notifyFinishedCommunication();
 
     long workerSentMessages = 0;
+    long workerSentMessageBytes = 0;
     long localVertices = 0;
     for (PartitionStats partitionStats : partitionStatsList) {
       workerSentMessages += partitionStats.getMessagesSentCount();
+      workerSentMessageBytes += partitionStats.getMessageBytesSentCount();
       localVertices += partitionStats.getVertexCount();
     }
 
@@ -756,10 +762,12 @@ public class BspServiceWorker<I extends WritableComparable,
     if (LOG.isInfoEnabled()) {
       LOG.info("finishSuperstep: Superstep " + getSuperstep() +
           ", messages = " + workerSentMessages + " " +
+          ", message bytes = " + workerSentMessageBytes + " , " +
           MemoryUtils.getRuntimeMemoryStats());
     }
 
-    writeFinshedSuperstepInfoToZK(partitionStatsList, workerSentMessages);
+    writeFinshedSuperstepInfoToZK(partitionStatsList,
+      workerSentMessages, workerSentMessageBytes);
 
     LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
         "finishSuperstep: (waiting for rest " +
@@ -854,9 +862,12 @@ public class BspServiceWorker<I extends WritableComparable,
    *
    * @param partitionStatsList List of partition stats from superstep.
    * @param workerSentMessages Number of messages sent in superstep.
+   * @param workerSentMessageBytes Number of message bytes sent
+   *                               in superstep.
    */
   private void writeFinshedSuperstepInfoToZK(
-      List<PartitionStats> partitionStatsList, long workerSentMessages) {
+      List<PartitionStats> partitionStatsList, long workerSentMessages,
+      long workerSentMessageBytes) {
     Collection<PartitionStats> finalizedPartitionStats =
         workerGraphPartitioner.finalizePartitionStats(
             partitionStatsList, getPartitionStore());
@@ -873,6 +884,8 @@ public class BspServiceWorker<I extends WritableComparable,
       workerFinishedInfoObj.put(JSONOBJ_PARTITION_STATS_KEY,
           Base64.encodeBytes(partitionStatsBytes));
       workerFinishedInfoObj.put(JSONOBJ_NUM_MESSAGES_KEY, workerSentMessages);
+      workerFinishedInfoObj.put(JSONOBJ_NUM_MESSAGE_BYTES_KEY,
+        workerSentMessageBytes);
       workerFinishedInfoObj.put(JSONOBJ_METRICS_KEY,
           Base64.encodeBytes(metricsBytes));
     } catch (JSONException e) {
@@ -884,7 +897,7 @@ public class BspServiceWorker<I extends WritableComparable,
         "/" + getHostnamePartitionId();
     try {
       getZkExt().createExt(finishedWorkerPath,
-          workerFinishedInfoObj.toString().getBytes(),
+          workerFinishedInfoObj.toString().getBytes(Charset.defaultCharset()),
           Ids.OPEN_ACL_UNSAFE,
           CreateMode.PERSISTENT,
           true);
@@ -909,13 +922,15 @@ public class BspServiceWorker<I extends WritableComparable,
    */
   private void saveVertices(long numLocalVertices) throws IOException,
       InterruptedException {
-    if (getConfiguration().getVertexOutputFormatClass() == null) {
+    ImmutableClassesGiraphConfiguration<I, V, E>  conf = getConfiguration();
+
+    if (conf.getVertexOutputFormatClass() == null) {
       LOG.warn("saveVertices: " +
           GiraphConstants.VERTEX_OUTPUT_FORMAT_CLASS +
           " not specified -- there will be no saved output");
       return;
     }
-    if (getConfiguration().doOutputDuringComputation()) {
+    if (conf.doOutputDuringComputation()) {
       if (LOG.isInfoEnabled()) {
         LOG.info("saveVertices: The option for doing output during " +
             "computation is selected, so there will be no saving of the " +
@@ -1014,12 +1029,126 @@ public class BspServiceWorker<I extends WritableComparable,
     }
   }
 
+  /**
+   * Save the edges using the user-defined EdgeOutputFormat from our
+   * vertexArray based on the split.
+   *
+   * @throws InterruptedException
+   */
+  private void saveEdges() throws IOException, InterruptedException {
+    final ImmutableClassesGiraphConfiguration<I, V, E>  conf =
+      getConfiguration();
+
+    if (conf.getEdgeOutputFormatClass() == null) {
+      LOG.warn("saveEdges: " +
+               GiraphConstants.EDGE_OUTPUT_FORMAT_CLASS +
+               "Make sure that the EdgeOutputFormat is not required.");
+      return;
+    }
+
+    final int numPartitions = getPartitionStore().getNumPartitions();
+    int numThreads = Math.min(conf.getNumOutputThreads(),
+        numPartitions);
+    LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
+        "saveEdges: Starting to save the edges using " +
+        numThreads + " threads");
+    final EdgeOutputFormat<I, V, E> edgeOutputFormat =
+        conf.createWrappedEdgeOutputFormat();
+
+    final Queue<Integer> partitionIdQueue =
+        (numPartitions == 0) ? new LinkedList<Integer>() :
+            new ArrayBlockingQueue<Integer>(numPartitions);
+    Iterables.addAll(partitionIdQueue, getPartitionStore().getPartitionIds());
+
+    CallableFactory<Void> callableFactory = new CallableFactory<Void>() {
+      @Override
+      public Callable<Void> newCallable(int callableId) {
+        return new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            EdgeWriter<I, V, E>  edgeWriter =
+                edgeOutputFormat.createEdgeWriter(getContext());
+            edgeWriter.setConf(conf);
+            edgeWriter.initialize(getContext());
+
+            long nextPrintVertices = 0;
+            long nextPrintMsecs = System.currentTimeMillis() + 15000;
+            int partitionIndex = 0;
+            int numPartitions = getPartitionStore().getNumPartitions();
+            while (!partitionIdQueue.isEmpty()) {
+              Integer partitionId = partitionIdQueue.poll();
+              if (partitionId == null) {
+                break;
+              }
+
+              Partition<I, V, E> partition =
+                  getPartitionStore().getPartition(partitionId);
+              long vertices = 0;
+              long edges = 0;
+              long partitionEdgeCount = partition.getEdgeCount();
+              for (Vertex<I, V, E> vertex : partition) {
+                for (Edge<I, E> edge : vertex.getEdges()) {
+                  edgeWriter.writeEdge(vertex.getId(), vertex.getValue(), edge);
+                  ++edges;
+                }
+                ++vertices;
+
+                // Update status at most every 250k vertices or 15 seconds
+                if (vertices > nextPrintVertices &&
+                    System.currentTimeMillis() > nextPrintMsecs) {
+                  LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
+                      "saveEdges: Saved " + edges +
+                      " edges out of " + partitionEdgeCount +
+                      " partition edges, on partition " + partitionIndex +
+                      " out of " + numPartitions);
+                  nextPrintMsecs = System.currentTimeMillis() + 15000;
+                  nextPrintVertices = vertices + 250000;
+                }
+              }
+              getPartitionStore().putPartition(partition);
+              ++partitionIndex;
+            }
+            edgeWriter.close(getContext()); // the temp results are saved now
+            return null;
+          }
+        };
+      }
+    };
+    ProgressableUtils.getResultsWithNCallables(callableFactory, numThreads,
+        "save-vertices-%d", getContext());
+
+    LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
+      "saveEdges: Done saving edges.");
+    // YARN: must complete the commit the "task" output, Hadoop isn't there.
+    if (conf.isPureYarnJob() &&
+      conf.getVertexOutputFormatClass() != null) {
+      try {
+        OutputCommitter outputCommitter =
+          edgeOutputFormat.getOutputCommitter(getContext());
+        if (outputCommitter.needsTaskCommit(getContext())) {
+          LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
+            "OutputCommitter: committing task output.");
+          // transfer from temp dirs to "task commit" dirs to prep for
+          // the master's OutputCommitter#commitJob(context) call to finish.
+          outputCommitter.commitTask(getContext());
+        }
+      } catch (InterruptedException ie) {
+        LOG.error("Interrupted while attempting to obtain " +
+          "OutputCommitter.", ie);
+      } catch (IOException ioe) {
+        LOG.error("Master task's attempt to commit output has " +
+          "FAILED.", ioe);
+      }
+    }
+  }
+
   @Override
   public void cleanup(FinishedSuperstepStats finishedSuperstepStats)
     throws IOException, InterruptedException {
     workerClient.closeConnections();
     setCachedSuperstep(getSuperstep() - 1);
     saveVertices(finishedSuperstepStats.getLocalVertexCount());
+    saveEdges();
     getPartitionStore().shutdown();
     // All worker processes should denote they are done by adding special
     // znode.  Once the number of znodes equals the number of partitions
@@ -1320,7 +1449,6 @@ else[HADOOP_NON_SECURE]*/
             partition);
       }
     }
-
 
     try {
       workerClientRequestProcessor.flush();

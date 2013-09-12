@@ -47,6 +47,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -143,6 +144,8 @@ public abstract class BspService<I extends WritableComparable,
       "_partitionStatsKey";
   /** JSON message count key */
   public static final String JSONOBJ_NUM_MESSAGES_KEY = "_numMsgsKey";
+  /** JSON message bytes count key */
+  public static final String JSONOBJ_NUM_MESSAGE_BYTES_KEY = "_numMsgBytesKey";
   /** JSON metrics key */
   public static final String JSONOBJ_METRICS_KEY = "_metricsKey";
 
@@ -688,8 +691,8 @@ public abstract class BspService<I extends WritableComparable,
         return null;
       }
       jobState =
-          new String(getZkExt().getData(
-              childList.get(childList.size() - 1), true, null));
+          new String(getZkExt().getData(childList.get(childList.size() - 1),
+              true, null), Charset.defaultCharset());
     } catch (KeeperException.NoNodeException e) {
       LOG.info("getJobState: Job state path is empty! - " +
           masterJobStatePath);

@@ -40,6 +40,8 @@ public class GiraphStats extends HadoopCountersBase {
   public static final String EDGES_NAME = "Aggregate edges";
   /** sent messages counter name */
   public static final String SENT_MESSAGES_NAME = "Sent messages";
+  /** sent messages counter name */
+  public static final String SENT_MESSAGE_BYTES_NAME = "Sent message bytes";
   /** workers counter name */
   public static final String CURRENT_WORKERS_NAME = "Current workers";
   /** current master partition task counter name */
@@ -48,9 +50,6 @@ public class GiraphStats extends HadoopCountersBase {
   /** last checkpointed superstep counter name */
   public static final String LAST_CHECKPOINTED_SUPERSTEP_NAME =
       "Last checkpointed superstep";
-  /** number of partitions counter name */
-  public static final String PARTITION_NUMBER_NAME =
-      "Number of partitions";
 
   /** Singleton instance for everyone to use */
   private static GiraphStats INSTANCE;
@@ -71,8 +70,8 @@ public class GiraphStats extends HadoopCountersBase {
   private static final int CURRENT_MASTER_TASK_PARTITION = 6;
   /** Last checkpointed superstep */
   private static final int LAST_CHECKPOINTED_SUPERSTEP = 7;
-  /** Partition numbers */
-  private static final int PARTITION_NUMBER = 8;
+  /** Sent message bytes counter */
+  private static final int SENT_MESSAGE_BYTES = 8;
   /** Number of counters in this class */
   private static final int NUM_COUNTERS = 9;
 
@@ -92,12 +91,12 @@ public class GiraphStats extends HadoopCountersBase {
     counters[FINISHED_VERTICES] = getCounter(FINISHED_VERTICES_NAME);
     counters[EDGES] = getCounter(EDGES_NAME);
     counters[SENT_MESSAGES] = getCounter(SENT_MESSAGES_NAME);
+    counters[SENT_MESSAGE_BYTES] = getCounter(SENT_MESSAGE_BYTES_NAME);
     counters[CURRENT_WORKERS] = getCounter(CURRENT_WORKERS_NAME);
     counters[CURRENT_MASTER_TASK_PARTITION] =
         getCounter(CURRENT_MASTER_PARTITION_TASK_NAME);
     counters[LAST_CHECKPOINTED_SUPERSTEP] =
         getCounter(LAST_CHECKPOINTED_SUPERSTEP_NAME);
-    counters[PARTITION_NUMBER] = getCounter(PARTITION_NUMBER_NAME);
   }
 
   /**
@@ -164,6 +163,15 @@ public class GiraphStats extends HadoopCountersBase {
   }
 
   /**
+   * Get SentMessageBytes counter
+   *
+   * @return SentMessageBytes counter
+   */
+  public GiraphHadoopCounter getSentMessageBytes() {
+    return counters[SENT_MESSAGE_BYTES];
+  }
+
+  /**
    * Get CurrentWorkers counter
    *
    * @return CurrentWorkers counter
@@ -188,15 +196,6 @@ public class GiraphStats extends HadoopCountersBase {
    */
   public GiraphHadoopCounter getLastCheckpointedSuperstep() {
     return counters[LAST_CHECKPOINTED_SUPERSTEP];
-  }
-
-  /**
-   * Get the number of partitions counter
-   *
-   * @return PartitionNumber counter
-   */
-  public GiraphHadoopCounter getPartitionNaumber() {
-    return counters[PARTITION_NUMBER];
   }
 
   @Override

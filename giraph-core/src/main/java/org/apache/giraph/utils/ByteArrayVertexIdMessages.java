@@ -64,7 +64,7 @@ public class ByteArrayVertexIdMessages<I extends WritableComparable,
 
   @Override
   public M createData() {
-    return messageValueFactory.createMessageValue();
+    return messageValueFactory.newInstance();
   }
 
   @Override
@@ -186,8 +186,7 @@ public class ByteArrayVertexIdMessages<I extends WritableComparable,
      *
      * @param dataOutput Where the current message will be written to
      */
-    public void writeCurrentMessageBytes(
-        ExtendedDataOutput dataOutput) {
+    public void writeCurrentMessageBytes(DataOutput dataOutput) {
       try {
         dataOutput.write(getByteArray(), messageOffset, messageBytes);
       } catch (IOException e) {

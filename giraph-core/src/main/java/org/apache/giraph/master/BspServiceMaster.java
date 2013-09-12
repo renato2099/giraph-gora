@@ -92,6 +92,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -264,7 +265,7 @@ public class BspServiceMaster<I extends WritableComparable,
     }
     try {
       getZkExt().createExt(masterJobStatePath + "/jobState",
-          jobState.toString().getBytes(),
+          jobState.toString().getBytes(Charset.defaultCharset()),
           Ids.OPEN_ACL_UNSAFE,
           CreateMode.PERSISTENT_SEQUENTIAL,
           true);
@@ -597,7 +598,8 @@ public class BspServiceMaster<I extends WritableComparable,
       if (getZkExt().exists(inputSplitsPath, false) != null) {
         LOG.info(inputSplitsPath + " already exists, no need to create");
         return Integer.parseInt(
-            new String(getZkExt().getData(inputSplitsPath, false, null)));
+            new String(getZkExt().getData(inputSplitsPath, false, null),
+                Charset.defaultCharset()));
       }
     } catch (KeeperException.NoNodeException e) {
       if (LOG.isInfoEnabled()) {
@@ -940,7 +942,8 @@ public class BspServiceMaster<I extends WritableComparable,
       try {
         byte [] zkData =
             getZkExt().getData(finishedPath, false, null);
-        workerFinishedInfoObj = new JSONObject(new String(zkData));
+        workerFinishedInfoObj = new JSONObject(new String(zkData,
+            Charset.defaultCharset()));
         List<PartitionStats> statsList =
             WritableUtils.readListFieldsFromByteArray(
                 Base64.decode(workerFinishedInfoObj.getString(
@@ -954,6 +957,9 @@ public class BspServiceMaster<I extends WritableComparable,
         globalStats.addMessageCount(
             workerFinishedInfoObj.getLong(
                 JSONOBJ_NUM_MESSAGES_KEY));
+        globalStats.addMessageBytesCount(
+          workerFinishedInfoObj.getLong(
+              JSONOBJ_NUM_MESSAGE_BYTES_KEY));
         if (conf.metricsEnabled() &&
             workerFinishedInfoObj.has(JSONOBJ_METRICS_KEY)) {
           WorkerSuperstepMetrics workerMetrics = new WorkerSuperstepMetrics();
@@ -1016,7 +1022,8 @@ public class BspServiceMaster<I extends WritableComparable,
         throw new RuntimeException(
             "printAggregatedMetricsToHDFS: metrics file exists");
       }
-      out = new PrintStream(fs.create(outFile));
+      out = new PrintStream(fs.create(outFile), false,
+          Charset.defaultCharset().name());
       aggregatedMetrics.print(superstep, out);
     } catch (IOException e) {
       throw new RuntimeException(
@@ -1959,7 +1966,7 @@ public class BspServiceMaster<I extends WritableComparable,
     gs.getFinishedVertexes().setValue(globalStats.getFinishedVertexCount());
     gs.getEdges().setValue(globalStats.getEdgeCount());
     gs.getSentMessages().setValue(globalStats.getMessageCount());
-    gs.getPartitionNaumber().setValue(globalStats.getPartitionNumber());
+    gs.getSentMessageBytes().setValue(globalStats.getMessageBytesCount());
   }
 
   /**
@@ -2037,7 +2044,7 @@ public class BspServiceMaster<I extends WritableComparable,
         if (LOG.isDebugEnabled()) {
           LOG.debug("call: Created input split " +
               "with index " + index + " serialized as " +
-              byteArrayOutputStream.toString());
+              byteArrayOutputStream.toString(Charset.defaultCharset().name()));
         }
       } catch (KeeperException.NodeExistsException e) {
         if (LOG.isInfoEnabled()) {

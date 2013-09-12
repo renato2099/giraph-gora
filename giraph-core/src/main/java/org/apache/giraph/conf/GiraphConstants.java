@@ -38,6 +38,7 @@ import org.apache.giraph.graph.DefaultVertexResolver;
 import org.apache.giraph.graph.Language;
 import org.apache.giraph.graph.VertexResolver;
 import org.apache.giraph.io.EdgeInputFormat;
+import org.apache.giraph.io.EdgeOutputFormat;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexOutputFormat;
 import org.apache.giraph.io.filters.DefaultEdgeInputFilter;
@@ -85,6 +86,17 @@ public interface GiraphConstants {
       ClassConfOption.create("giraph.typesHolder", null,
           TypesHolder.class,
           "TypesHolder, used if Computation not set - optional");
+
+  /** Language user's graph types are implemented in */
+  PerGraphTypeEnumConfOption<Language> GRAPH_TYPE_LANGUAGES =
+      PerGraphTypeEnumConfOption.create("giraph.types.language",
+          Language.class, Language.JAVA,
+          "Language user graph types (IVEMM) are implemented in");
+
+  /** Whether user graph types need wrappers */
+  PerGraphTypeBooleanConfOption GRAPH_TYPES_NEEDS_WRAPPERS =
+      new PerGraphTypeBooleanConfOption("giraph.jython.type.wrappers",
+          false, "Whether user graph types (IVEMM) need Jython wrappers");
 
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
@@ -199,6 +211,28 @@ public interface GiraphConstants {
   ClassConfOption<VertexOutputFormat> VERTEX_OUTPUT_FORMAT_CLASS =
       ClassConfOption.create("giraph.vertexOutputFormatClass", null,
           VertexOutputFormat.class, "VertexOutputFormat class");
+  /** EdgeOutputFormat sub-directory */
+  StrConfOption VERTEX_OUTPUT_FORMAT_SUBDIR =
+    new StrConfOption("giraph.vertex.output.subdir", "",
+                      "VertexOutputFormat sub-directory");
+  /** EdgeOutputFormat class */
+  ClassConfOption<EdgeOutputFormat> EDGE_OUTPUT_FORMAT_CLASS =
+      ClassConfOption.create("giraph.edgeOutputFormatClass", null,
+          EdgeOutputFormat.class, "EdgeOutputFormat class");
+  /** EdgeOutputFormat sub-directory */
+  StrConfOption EDGE_OUTPUT_FORMAT_SUBDIR =
+    new StrConfOption("giraph.edge.output.subdir", "edges",
+                      "EdgeOutputFormat sub-directory");
+
+  /** GiraphTextOuputFormat Separator */
+  StrConfOption GIRAPH_TEXT_OUTPUT_FORMAT_SEPARATOR =
+    new StrConfOption("giraph.textoutputformat.separator", "\t",
+                      "GiraphTextOuputFormat Separator");
+  /** Reverse values in the output */
+  BooleanConfOption GIRAPH_TEXT_OUTPUT_FORMAT_REVERSE =
+      new BooleanConfOption("giraph.textoutputformat.reverse", false,
+                            "Reverse values in the output");
+
   /**
    * If you use this option, instead of having saving vertices in the end of
    * application, saveVertex will be called right after each vertex.compute()
@@ -829,6 +863,17 @@ public interface GiraphConstants {
           "Use unsafe serialization?");
 
   /**
+   * Use BigDataIO for messages? If there are super-vertices in the
+   * graph which receive a lot of messages (total serialized size of messages
+   * goes beyond the maximum size of a byte array), setting this option to true
+   * will remove that limit. The maximum memory available for a single vertex
+   * will be limited to the maximum heap size available.
+   */
+  BooleanConfOption USE_BIG_DATA_IO_FOR_MESSAGES =
+      new BooleanConfOption("giraph.useBigDataIOForMessages", false,
+          "Use BigDataIO for messages?");
+
+  /**
    * Maximum number of attempts a master/worker will retry before killing
    * the job.  This directly maps to the number of map task attempts in
    * Hadoop.
@@ -869,5 +914,14 @@ public interface GiraphConstants {
           "The application will not mutate the graph topology (the edges). " +
           "It is used to optimise out-of-core graph, by not writing back " +
           "edges every time.");
+
+  /**
+   * This option will enable communication optimization for one-to-all
+   * message sending. For multiple target ids on the same machine,
+   * we only send one message to all the targets.
+   */
+  BooleanConfOption ONE_TO_ALL_MSG_SENDING =
+    new BooleanConfOption("giraph.oneToAllMsgSending", false, "Enable " +
+        "one-to-all message sending strategy");
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck

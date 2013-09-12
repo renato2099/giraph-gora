@@ -37,10 +37,10 @@ public class GlobalStats implements Writable {
   private long edgeCount = 0;
   /** All messages sent in the last superstep */
   private long messageCount = 0;
+  /** All message bytes sent in the last superstep */
+  private long messageBytesCount = 0;
   /** Whether the computation should be halted */
   private boolean haltComputation = false;
-  /** All partitions processed in the application */
-  private long partitionNumber = 0;
 
   /**
    * Add the stats of a partition to the global stats.
@@ -69,16 +69,16 @@ public class GlobalStats implements Writable {
     return messageCount;
   }
 
+  public long getMessageBytesCount() {
+    return messageBytesCount;
+  }
+
   public boolean getHaltComputation() {
     return haltComputation;
   }
 
   public void setHaltComputation(boolean value) {
     haltComputation = value;
-  }
-
-  public long getPartitionNumber() {
-    return partitionNumber;
   }
 
   /**
@@ -90,12 +90,22 @@ public class GlobalStats implements Writable {
     this.messageCount += messageCount;
   }
 
+  /**
+   * Add messages to the global stats.
+   *
+   * @param msgBytesCount Number of message bytes to be added.
+   */
+  public void addMessageBytesCount(long msgBytesCount) {
+    this.messageBytesCount += msgBytesCount;
+  }
+
   @Override
   public void readFields(DataInput input) throws IOException {
     vertexCount = input.readLong();
     finishedVertexCount = input.readLong();
     edgeCount = input.readLong();
     messageCount = input.readLong();
+    messageBytesCount = input.readLong();
     haltComputation = input.readBoolean();
   }
 
@@ -105,6 +115,7 @@ public class GlobalStats implements Writable {
     output.writeLong(finishedVertexCount);
     output.writeLong(edgeCount);
     output.writeLong(messageCount);
+    output.writeLong(messageBytesCount);
     output.writeBoolean(haltComputation);
   }
 
@@ -112,6 +123,7 @@ public class GlobalStats implements Writable {
   public String toString() {
     return "(vtx=" + vertexCount + ",finVtx=" +
         finishedVertexCount + ",edges=" + edgeCount + ",msgCount=" +
-        messageCount + ",haltComputation=" + haltComputation + ")";
+        messageCount + ",msgBytesCount=" +
+          messageBytesCount + ",haltComputation=" + haltComputation + ")";
   }
 }

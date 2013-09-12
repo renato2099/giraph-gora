@@ -22,11 +22,12 @@ import org.apache.giraph.aggregators.AggregatorWriter;
 import org.apache.giraph.combiner.Combiner;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.edge.ReuseObjectsOutEdges;
-import org.apache.giraph.graph.Computation;
 import org.apache.giraph.factories.ComputationFactory;
-import org.apache.giraph.graph.VertexResolver;
 import org.apache.giraph.factories.VertexValueFactory;
+import org.apache.giraph.graph.Computation;
+import org.apache.giraph.graph.VertexResolver;
 import org.apache.giraph.io.EdgeInputFormat;
+import org.apache.giraph.io.EdgeOutputFormat;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexOutputFormat;
 import org.apache.giraph.io.filters.EdgeInputFilter;
@@ -45,7 +46,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.net.DNS;
 
 import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
  * Adds user methods specific to Giraph.  This will be put into an
@@ -57,14 +57,10 @@ import java.util.Map;
  */
 public class GiraphConfiguration extends Configuration
     implements GiraphConstants {
-  /** Configuration with parameters which were set in Giraph */
-  private final Configuration giraphSetParameters;
-
   /**
    * Constructor that creates the configuration
    */
   public GiraphConfiguration() {
-    giraphSetParameters = new Configuration(false);
     configureHadoopSecurity();
   }
 
@@ -75,7 +71,6 @@ public class GiraphConfiguration extends Configuration
    */
   public GiraphConfiguration(Configuration conf) {
     super(conf);
-    giraphSetParameters = new Configuration(false);
     configureHadoopSecurity();
   }
 
@@ -101,7 +96,7 @@ public class GiraphConfiguration extends Configuration
   }
 
   /**
-   * Get the user's subclassed {@link Computation}
+   * Get the user's subclassed {@link org.apache.giraph.graph.Computation}
    *
    * @return User's computation class
    */
@@ -351,6 +346,25 @@ public class GiraphConfiguration extends Configuration
     VERTEX_OUTPUT_FORMAT_CLASS.set(this, vertexOutputFormatClass);
   }
 
+
+  /**
+   * Does the job have a {@link EdgeOutputFormat} subdir?
+   *
+   * @return True iff a {@link EdgeOutputFormat} subdir has been specified.
+   */
+  public boolean hasVertexOutputFormatSubdir() {
+    return !VERTEX_OUTPUT_FORMAT_SUBDIR.get(this).isEmpty();
+  }
+
+  /**
+   * Set the vertex output format path
+   *
+   * @param path path where the verteces will be written
+   */
+  public final void setVertexOutputFormatSubdir(String path) {
+    VERTEX_OUTPUT_FORMAT_SUBDIR.set(this, path);
+  }
+
   /**
    * Check if output should be done during computation
    *
@@ -389,6 +403,43 @@ public class GiraphConfiguration extends Configuration
   public final void setVertexOutputFormatThreadSafe(
       boolean vertexOutputFormatThreadSafe) {
     VERTEX_OUTPUT_FORMAT_THREAD_SAFE.set(this, vertexOutputFormatThreadSafe);
+  }
+
+  /**
+   * Does the job have a {@link EdgeOutputFormat}?
+   *
+   * @return True iff a {@link EdgeOutputFormat} has been specified.
+   */
+  public boolean hasEdgeOutputFormat() {
+    return EDGE_OUTPUT_FORMAT_CLASS.get(this) != null;
+  }
+
+  /**
+   * Set the edge output format class (optional)
+   *
+   * @param edgeOutputFormatClass Determines how graph is output
+   */
+  public final void setEdgeOutputFormatClass(
+      Class<? extends EdgeOutputFormat> edgeOutputFormatClass) {
+    EDGE_OUTPUT_FORMAT_CLASS.set(this, edgeOutputFormatClass);
+  }
+
+  /**
+   * Does the job have a {@link EdgeOutputFormat} subdir?
+   *
+   * @return True iff a {@link EdgeOutputFormat} subdir has been specified.
+   */
+  public boolean hasEdgeOutputFormatSubdir() {
+    return !EDGE_OUTPUT_FORMAT_SUBDIR.get(this).isEmpty();
+  }
+
+  /**
+   * Set the edge output format path
+   *
+   * @param path path where the edges will be written
+   */
+  public final void setEdgeOutputFormatSubdir(String path) {
+    EDGE_OUTPUT_FORMAT_SUBDIR.set(this, path);
   }
 
   /**
@@ -984,68 +1035,6 @@ public class GiraphConfiguration extends Configuration
   }
 
   /**
-   * Put all parameters set in Giraph to another configuration
-   *
-   * @param conf Configuration
-   */
-  public synchronized void updateConfiguration(Configuration conf) {
-    if (this != conf) {
-      for (Map.Entry<String, String> parameter : giraphSetParameters) {
-        conf.set(parameter.getKey(), parameter.getValue());
-      }
-    }
-  }
-
-  @Override
-  public synchronized void set(String name, String value) {
-    super.set(name, value);
-    giraphSetParameters.set(name, value);
-  }
-
-  @Override
-  public synchronized void setIfUnset(String name, String value) {
-    super.setIfUnset(name, value);
-    giraphSetParameters.set(name, get(name, value));
-  }
-
-  @Override
-  public synchronized void setInt(String name, int value) {
-    super.setInt(name, value);
-    giraphSetParameters.setInt(name, value);
-  }
-
-  @Override
-  public synchronized void setLong(String name, long value) {
-    super.setLong(name, value);
-    giraphSetParameters.setLong(name, value);
-  }
-
-  @Override
-  public synchronized void setFloat(String name, float value) {
-    super.setFloat(name, value);
-    giraphSetParameters.setFloat(name, value);
-  }
-
-  @Override
-  public synchronized void setBoolean(String name, boolean value) {
-    super.setBoolean(name, value);
-    giraphSetParameters.setBoolean(name, value);
-  }
-
-  @Override
-  public synchronized void setBooleanIfUnset(String name, boolean value) {
-    super.setBooleanIfUnset(name, value);
-    giraphSetParameters.setBoolean(name, getBoolean(name, value));
-  }
-
-  @Override
-  public synchronized void setClass(String name, Class<?> theClass,
-                                    Class<?> xface) {
-    super.setClass(name, theClass, xface);
-    giraphSetParameters.setClass(name, theClass, xface);
-  }
-
-  /**
    * Get the output directory to write YourKit snapshots to
    *
    * @param context Map context
@@ -1103,5 +1092,21 @@ public class GiraphConfiguration extends Configuration
     value = value.replace("%TASK_ID%", context.getTaskAttemptID().toString());
     value = value.replace("%USER%", get("user.name", "unknown_user"));
     return value;
+  }
+
+  /**
+   * Enable communication optimization for one-to-all messages.
+   */
+  public void enableOneToAllMsgSending() {
+    ONE_TO_ALL_MSG_SENDING.set(this, true);
+  }
+
+  /**
+   * Return if one-to-all messsage sending is enabled.
+   *
+   * @return True if this option is enabled.
+   */
+  public boolean isOneToAllMsgSendingEnabled() {
+    return ONE_TO_ALL_MSG_SENDING.isTrue(this);
   }
 }

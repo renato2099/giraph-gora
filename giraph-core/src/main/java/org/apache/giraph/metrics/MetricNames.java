@@ -68,6 +68,9 @@ public interface MetricNames {
   /** Counter of messages sent in superstep */
   String MESSAGES_SENT = "messages-sent";
 
+  /** Counter of messages sent in superstep */
+  String MESSAGE_BYTES_SENT = "message-bytes-sent";
+
   /** Histogram for vertices in mutations requests */
   String VERTICES_IN_MUTATION_REQUEST = "vertices-per-mutations-request";
 
@@ -88,7 +91,4 @@ public interface MetricNames {
   String VERTICES_FILTERED = "vertices-filtered";
   /** Percent of vertices filtered out */
   String VERTICES_FILTERED_PCT = "vertices-filtered-pct";
-
-  /** Total number of partitions */
-  String PARTITION_NUMBER = "partition-number";
 }

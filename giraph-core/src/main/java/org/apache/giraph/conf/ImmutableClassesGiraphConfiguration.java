@@ -25,19 +25,24 @@ import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.edge.ReusableEdge;
 import org.apache.giraph.factories.ComputationFactory;
+import org.apache.giraph.factories.EdgeValueFactory;
 import org.apache.giraph.factories.MessageValueFactory;
-import org.apache.giraph.graph.DefaultVertex;
-import org.apache.giraph.graph.Computation;
 import org.apache.giraph.factories.ValueFactories;
+import org.apache.giraph.factories.VertexIdFactory;
+import org.apache.giraph.factories.VertexValueFactory;
+import org.apache.giraph.graph.Computation;
+import org.apache.giraph.graph.DefaultVertex;
+import org.apache.giraph.graph.Language;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexResolver;
-import org.apache.giraph.factories.VertexValueFactory;
 import org.apache.giraph.io.EdgeInputFormat;
+import org.apache.giraph.io.EdgeOutputFormat;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexOutputFormat;
 import org.apache.giraph.io.filters.EdgeInputFilter;
 import org.apache.giraph.io.filters.VertexInputFilter;
 import org.apache.giraph.io.internal.WrappedEdgeInputFormat;
+import org.apache.giraph.io.internal.WrappedEdgeOutputFormat;
 import org.apache.giraph.io.internal.WrappedVertexInputFormat;
 import org.apache.giraph.io.internal.WrappedVertexOutputFormat;
 import org.apache.giraph.io.superstep_output.MultiThreadedSuperstepOutput;
@@ -57,6 +62,9 @@ import org.apache.giraph.utils.ExtendedDataOutput;
 import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.utils.UnsafeByteArrayInputStream;
 import org.apache.giraph.utils.UnsafeByteArrayOutputStream;
+import org.apache.giraph.utils.io.BigDataInputOutput;
+import org.apache.giraph.utils.io.DataInputOutput;
+import org.apache.giraph.utils.io.ExtendedDataInputOutput;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
 import org.apache.hadoop.conf.Configuration;
@@ -83,14 +91,23 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
     extends GiraphConfiguration {
   /** Holder for all the classes */
   private final GiraphClasses classes;
-  /** Value Factories */
+  /** Value (IVEMM) Factories */
   private final ValueFactories<I, V, E> valueFactories;
+  /** Language values (IVEMM) are implemented in */
+  private final PerGraphTypeEnum<Language> valueLanguages;
+  /** Whether values (IVEMM) need Jython wrappers */
+  private final PerGraphTypeBoolean valueNeedsWrappers;
 
   /**
    * Use unsafe serialization? Cached for fast access to instantiate the
    * extended data input/output classes
    */
   private final boolean useUnsafeSerialization;
+  /**
+   * Use BigDataIO for messages? Cached for fast access to instantiate the
+   * extended data input/output classes for messages
+   */
+  private final boolean useBigDataIOForMessages;
 
   /**
    * Constructor.  Takes the configuration and then gets the classes out of
@@ -102,8 +119,13 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
     super(conf);
     classes = new GiraphClasses<I, V, E>(conf);
     useUnsafeSerialization = USE_UNSAFE_SERIALIZATION.get(this);
+    useBigDataIOForMessages = USE_BIG_DATA_IO_FOR_MESSAGES.get(this);
+    valueLanguages = PerGraphTypeEnum.readFromConf(
+        GiraphConstants.GRAPH_TYPE_LANGUAGES, conf);
+    valueNeedsWrappers = PerGraphTypeBoolean.readFromConf(
+        GiraphConstants.GRAPH_TYPES_NEEDS_WRAPPERS, conf);
     valueFactories = new ValueFactories<I, V, E>(conf);
-    valueFactories.initializeAll(this);
+    valueFactories.initializeIVE(this);
   }
 
   /**
@@ -115,6 +137,14 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
     if (obj instanceof ImmutableClassesGiraphConfigurable) {
       ((ImmutableClassesGiraphConfigurable) obj).setConf(this);
     }
+  }
+
+  public PerGraphTypeBoolean getValueNeedsWrappers() {
+    return valueNeedsWrappers;
+  }
+
+  public PerGraphTypeEnum<Language> getValueLanguages() {
+    return valueLanguages;
   }
 
   /**
@@ -268,6 +298,49 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
         new WrappedVertexOutputFormat<I, V, E>(createVertexOutputFormat());
     configureIfPossible(wrappedVertexOutputFormat);
     return wrappedVertexOutputFormat;
+  }
+
+  @Override
+  public boolean hasEdgeOutputFormat() {
+    return classes.hasEdgeOutputFormat();
+  }
+
+  /**
+   * Get the user's subclassed
+   * {@link org.apache.giraph.io.EdgeOutputFormat}.
+   *
+   * @return User's edge output format class
+   */
+  public Class<? extends EdgeOutputFormat<I, V, E>>
+  getEdgeOutputFormatClass() {
+    return classes.getEdgeOutputFormatClass();
+  }
+
+  /**
+   * Create a user edge output format class.
+   * Note: Giraph should only use WrappedEdgeOutputFormat,
+   * which makes sure that Configuration parameters are set properly.
+   *
+   * @return Instantiated user edge output format class
+   */
+  private EdgeOutputFormat<I, V, E> createEdgeOutputFormat() {
+    Class<? extends EdgeOutputFormat<I, V, E>> klass =
+        getEdgeOutputFormatClass();
+    return ReflectionUtils.newInstance(klass, this);
+  }
+
+  /**
+   * Create a wrapper for user edge output format,
+   * which makes sure that Configuration parameters are set properly in all
+   * methods related to this format.
+   *
+   * @return Wrapper around user edge output format
+   */
+  public WrappedEdgeOutputFormat<I, V, E> createWrappedEdgeOutputFormat() {
+    WrappedEdgeOutputFormat<I, V, E> wrappedEdgeOutputFormat =
+        new WrappedEdgeOutputFormat<I, V, E>(createEdgeOutputFormat());
+    configureIfPossible(wrappedEdgeOutputFormat);
+    return wrappedEdgeOutputFormat;
   }
 
   /**
@@ -440,8 +513,8 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   }
 
   @Override
-  public Class<? extends
-      Computation<I, V, E, ? extends Writable, ? extends Writable>>
+  public Class<? extends Computation<I, V, E,
+      ? extends Writable, ? extends Writable>>
   getComputationClass() {
     return classes.getComputationClass();
   }
@@ -508,12 +581,21 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   }
 
   /**
+   * Get vertex ID factory
+   *
+   * @return {@link VertexIdFactory}
+   */
+  public VertexIdFactory<I> getVertexIdFactory() {
+    return valueFactories.getVertexIdFactory();
+  }
+
+  /**
    * Create a user vertex index
    *
    * @return Instantiated user vertex index
    */
   public I createVertexId() {
-    return valueFactories.getVertexIdFactory().createVertexId();
+    return getVertexIdFactory().newInstance();
   }
 
   /**
@@ -526,13 +608,22 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   }
 
   /**
+   * Get vertex value factory
+   *
+   * @return {@link VertexValueFactory}
+   */
+  public VertexValueFactory<V> getVertexValueFactory() {
+    return valueFactories.getVertexValueFactory();
+  }
+
+  /**
    * Create a user vertex value
    *
    * @return Instantiated user vertex value
    */
   @SuppressWarnings("unchecked")
   public V createVertexValue() {
-    return valueFactories.getVertexValueFactory().createVertexValue();
+    return getVertexValueFactory().newInstance();
   }
 
   /**
@@ -601,12 +692,21 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   }
 
   /**
+   * Get Factory for creating edge values
+   *
+   * @return {@link EdgeValueFactory}
+   */
+  public EdgeValueFactory<E> getEdgeValueFactory() {
+    return valueFactories.getEdgeValueFactory();
+  }
+
+  /**
    * Create a user edge value
    *
    * @return Instantiated user edge value
    */
   public E createEdgeValue() {
-    return valueFactories.getEdgeValueFactory().createEdgeValue();
+    return getEdgeValueFactory().newInstance();
   }
 
   /**
@@ -653,8 +753,9 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
    */
   public <M extends Writable> MessageValueFactory<M>
   getIncomingMessageValueFactory() {
-    MessageValueFactory<M> factory =
-        INCOMING_MESSAGE_VALUE_FACTORY_CLASS.newInstance(this);
+    Class<? extends MessageValueFactory> klass =
+        valueFactories.getInMsgFactoryClass();
+    MessageValueFactory<M> factory = ReflectionUtils.newInstance(klass, this);
     factory.initialize(this);
     return factory;
   }
@@ -677,8 +778,9 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
    */
   public <M extends Writable> MessageValueFactory<M>
   getOutgoingMessageValueFactory() {
-    MessageValueFactory<M> factory =
-        OUTGOING_MESSAGE_VALUE_FACTORY_CLASS.newInstance(this);
+    Class<? extends MessageValueFactory> klass =
+        valueFactories.getOutMsgFactoryClass();
+    MessageValueFactory<M> factory = ReflectionUtils.newInstance(klass, this);
     factory.initialize(this);
     return factory;
   }
@@ -801,6 +903,19 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
    */
   public boolean useUnsafeSerialization() {
     return useUnsafeSerialization;
+  }
+
+  /**
+   * Create DataInputOutput to store messages
+   *
+   * @return DataInputOutput object
+   */
+  public DataInputOutput createMessagesInputOutput() {
+    if (useBigDataIOForMessages) {
+      return new BigDataInputOutput(this);
+    } else {
+      return new ExtendedDataInputOutput(this);
+    }
   }
 
   /**

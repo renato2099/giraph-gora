@@ -32,22 +32,14 @@ public class PartitionStats implements Writable {
   private int partitionId = -1;
   /** Vertices in this partition */
   private long vertexCount = 0;
-  /** Maximum Vertices in this partition */
-  private long vertexMaxCount = 0;
-  /** Minimum Vertices in this partition */
-  private long vertexMinCount = 0;
-  /** Average Vertices in this partition */
-  private long vertexAvgCount = 0;
   /** Finished vertices in this partition */
   private long finishedVertexCount = 0;
   /** Edges in this partition */
   private long edgeCount = 0;
-  /** Maximum Edges in this partition */
-  private long edgeMaxCount = 0;
-  /** Minimum Edges in this partition */
-  private long edgeMinCount = 0;
   /** Messages sent from this partition */
   private long messagesSentCount = 0;
+  /** Message byetes sent from this partition */
+  private long messageBytesSentCount = 0;
 
   /**
    * Default constructor for reflection.
@@ -62,23 +54,20 @@ public class PartitionStats implements Writable {
    * @param finishedVertexCount Finished vertex count.
    * @param edgeCount Edge count.
    * @param messagesSentCount Number of messages sent
+   * @param messageBytesSentCount Number of message bytes sent
    */
   public PartitionStats(int partitionId,
       long vertexCount,
       long finishedVertexCount,
       long edgeCount,
-      long messagesSentCount) {
+      long messagesSentCount,
+      long messageBytesSentCount) {
     this.partitionId = partitionId;
     this.vertexCount = vertexCount;
     this.finishedVertexCount = finishedVertexCount;
     this.edgeCount = edgeCount;
     this.messagesSentCount = messagesSentCount;
-    // we can initialize this as zeros because this are calculated
-    this.edgeMaxCount = 0;
-    this.edgeMinCount = 0;
-    this.vertexMaxCount = 0;
-    this.vertexMinCount = 0;
-    this.vertexAvgCount = 0;
+    this.messageBytesSentCount = messageBytesSentCount;
   }
 
   /**
@@ -116,53 +105,6 @@ public class PartitionStats implements Writable {
   }
 
   /**
-   * Get the vertex maximum count.
-   *
-   * @return Vertex count.
-   */
-  public long getVertexMaxCount() {
-    return vertexMaxCount;
-  }
-
-  /**
-   * Sets the vertex maximum count.
-   * @param vertexMaxCount New vertex maximum count.
-   */
-  public void setVertexMaxCount(long vertexMaxCount) {
-    if (this.vertexMaxCount < vertexMaxCount) {
-      this.vertexMaxCount = vertexMaxCount;
-    }
-  }
-
-  /**
-   * Get the vertex minimum count.
-   *
-   * @return Vertex count.
-   */
-  public long getVertexMinCount() {
-    return vertexMinCount;
-  }
-
-  /**
-   * Sets the vertex minimum count.
-   * @param vertexMinCount New vertex minimum count.
-   */
-  public void setVertexMinCount(long vertexMinCount) {
-    if (this.vertexMinCount > vertexMinCount) {
-      this.vertexMinCount = vertexMinCount;
-    }
-  }
-
-  /**
-   * Get the vertex average count.
-   *
-   * @return Vertex count.
-   */
-  public long getVertexAvgCount() {
-    return vertexAvgCount;
-  }
-
-  /**
    * Increment the finished vertex count by one.
    */
   public void incrFinishedVertexCount() {
@@ -197,44 +139,6 @@ public class PartitionStats implements Writable {
   }
 
   /**
-   * Get the edge maximum count.
-   *
-   * @return Edge count.
-   */
-  public long getEdgeMaxCount() {
-    return edgeMaxCount;
-  }
-
-  /**
-   * Sets the vertex maximum count.
-   * @param edgeMaxCount New edge maximum count.
-   */
-  public void setEdgeMaxCount(long edgeMaxCount) {
-    if (this.edgeMaxCount < edgeMaxCount) {
-      this.edgeMaxCount = edgeMaxCount;
-    }
-  }
-
-  /**
-   * Get the edge count.
-   *
-   * @return Edge count.
-   */
-  public long getEdgeMinCount() {
-    return edgeMinCount;
-  }
-
-  /**
-   * Sets the vertex maximum count.
-   * @param edgeMinCount New edge minimum count.
-   */
-  public void setEdgeMinCount(long edgeMinCount) {
-    if (this.edgeMinCount > edgeMinCount) {
-      this.edgeMinCount = edgeMinCount;
-    }
-  }
-
-  /**
    * Add messages to the messages sent count.
    *
    * @param messagesSentCount Number of messages to add.
@@ -252,6 +156,24 @@ public class PartitionStats implements Writable {
     return messagesSentCount;
   }
 
+  /**
+   * Add message bytes to messageBytesSentCount.
+   *
+   * @param messageBytesSentCount Number of message bytes to add.
+   */
+  public void addMessageBytesSentCount(long messageBytesSentCount) {
+    this.messageBytesSentCount += messageBytesSentCount;
+  }
+
+  /**
+   * Get the message bytes sent count.
+   *
+   * @return Message bytes sent count.
+   */
+  public long getMessageBytesSentCount() {
+    return messageBytesSentCount;
+  }
+
   @Override
   public void readFields(DataInput input) throws IOException {
     partitionId = input.readInt();
@@ -259,6 +181,7 @@ public class PartitionStats implements Writable {
     finishedVertexCount = input.readLong();
     edgeCount = input.readLong();
     messagesSentCount = input.readLong();
+    messageBytesSentCount = input.readLong();
   }
 
   @Override
@@ -268,12 +191,14 @@ public class PartitionStats implements Writable {
     output.writeLong(finishedVertexCount);
     output.writeLong(edgeCount);
     output.writeLong(messagesSentCount);
+    output.writeLong(messageBytesSentCount);
   }
 
   @Override
   public String toString() {
     return "(id=" + partitionId + ",vtx=" + vertexCount + ",finVtx=" +
         finishedVertexCount + ",edges=" + edgeCount + ",msgsSent=" +
-        messagesSentCount + ")";
+        messagesSentCount + ",msgBytesSent=" +
+          messageBytesSentCount + ")";
   }
 }

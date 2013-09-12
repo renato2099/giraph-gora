@@ -24,7 +24,7 @@ import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.factories.MessageValueFactory;
 import org.apache.giraph.utils.EmptyIterable;
-import org.apache.giraph.utils.ExtendedDataOutput;
+import org.apache.giraph.utils.io.DataInputOutput;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
@@ -109,16 +109,20 @@ public class SequentialFileMessageStore<I extends WritableComparable,
    * @param messageMap Add the messages from this map to this store
    * @throws java.io.IOException
    */
-  public void addMessages(NavigableMap<I, ExtendedDataOutput> messageMap)
+  public void addMessages(NavigableMap<I, DataInputOutput> messageMap)
     throws IOException {
     // Writes messages to its file
     if (file.exists()) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("addMessages: Deleting " + file);
       }
-      file.delete();
+      if (!file.delete()) {
+        throw new IOException("Failed to delete existing file " + file);
+      }
     }
-    file.createNewFile();
+    if (!file.createNewFile()) {
+      throw new IOException("Failed to create file " + file);
+    }
     if (LOG.isDebugEnabled()) {
       LOG.debug("addMessages: Creating " + file);
     }
@@ -132,13 +136,12 @@ public class SequentialFileMessageStore<I extends WritableComparable,
       out.writeInt(destinationVertexIdCount);
 
       // Dump the vertices and their messages in a sorted order
-      for (Map.Entry<I, ExtendedDataOutput> entry : messageMap.entrySet()) {
+      for (Map.Entry<I, DataInputOutput> entry : messageMap.entrySet()) {
         I destinationVertexId = entry.getKey();
         destinationVertexId.write(out);
-        ExtendedDataOutput extendedDataOutput = entry.getValue();
+        DataInputOutput dataInputOutput = entry.getValue();
         Iterable<M> messages = new MessagesIterable<M>(
-            config, messageValueFactory, extendedDataOutput.getByteArray(), 0,
-            extendedDataOutput.getPos());
+            dataInputOutput, messageValueFactory);
         int messageCount = Iterables.size(messages);
         out.writeInt(messageCount);
         if (LOG.isDebugEnabled()) {
@@ -196,7 +199,9 @@ public class SequentialFileMessageStore<I extends WritableComparable,
    */
   public void clearAll() throws IOException {
     endReading();
-    file.delete();
+    if (!file.delete()) {
+      LOG.error("clearAll: Failed to delete file " + file);
+    }
   }
 
   @Override
@@ -298,7 +303,7 @@ public class SequentialFileMessageStore<I extends WritableComparable,
     int messagesSize = in.readInt();
     List<M> messages = Lists.newArrayListWithCapacity(messagesSize);
     for (int i = 0; i < messagesSize; i++) {
-      M message = messageValueFactory.createMessageValue();
+      M message = messageValueFactory.newInstance();
       try {
         message.readFields(in);
       } catch (IOException e) {
@@ -390,7 +395,10 @@ public class SequentialFileMessageStore<I extends WritableComparable,
         String directory = path + File.separator + jobId + File.separator +
             taskId + File.separator;
         directories[i++] = directory;
-        new File(directory).mkdirs();
+        if (!new File(directory).mkdirs()) {
+          LOG.error("SequentialFileMessageStore$Factory: Failed to create " +
+              directory);
+        }
       }
       this.bufferSize = GiraphConstants.MESSAGES_BUFFER_SIZE.get(config);
       storeCounter = new AtomicInteger();
