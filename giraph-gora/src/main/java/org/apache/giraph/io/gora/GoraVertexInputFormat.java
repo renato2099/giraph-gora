@@ -217,7 +217,7 @@ public abstract class GoraVertexInputFormat<
         LOG.debug("Error transforming vertices.");
         flg = false;
       }
-      LOG.debug("Transformamos " + RECORD_COUNTER + " registros");
+      LOG.debug(RECORD_COUNTER + " were transformed.");
       return flg;
     }
     // CHECKSTYLE: resume IllegalCatch

@@ -64,8 +64,7 @@ public interface GiraphGoraConstants {
     new StrConfOption("giraph.gora.output.datastore.class", null,
                       "Gora DataStore class to write data to. " +
                       "- required");
-  
-  
+
   /** Gora key class to query the data store. */
   StrConfOption GIRAPH_GORA_OUTPUT_KEY_CLASS =
     new StrConfOption("giraph.gora.output.key.class", null,

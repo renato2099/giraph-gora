@@ -18,10 +18,13 @@
 package org.apache.giraph.io.gora;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
+import java.util.Iterator;
 
+import org.apache.avro.util.Utf8;
+import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexWriter;
+import org.apache.giraph.io.gora.generated.GVertexResult;
 import org.apache.gora.persistency.Persistent;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
@@ -43,11 +46,11 @@ public class GoraGVertexVertexOutputFormat
 
   @Override
   public VertexWriter<LongWritable, DoubleWritable, FloatWritable>
-    createVertexWriter(TaskAttemptContext context)
-        throws IOException, InterruptedException {
-    // TODO Auto-generated method stub
+  createVertexWriter(TaskAttemptContext context)
+    throws IOException, InterruptedException {
     return new GoraGVertexVertexWriter();
   }
+
   /**
    * Rexster vertex writer.
    */
@@ -56,9 +59,26 @@ public class GoraGVertexVertexOutputFormat
     @Override
     protected Persistent getGoraVertex(
         Vertex<LongWritable, DoubleWritable, FloatWritable> vertex) {
-      // TODO Auto-generated method stub
-      return null;
+      GVertexResult tmpGVertex = new GVertexResult();
+      tmpGVertex.setVertexId(new Utf8(vertex.getId().toString()));
+      tmpGVertex.setValue(Float.parseFloat(vertex.getValue().toString()));
+      Iterator<Edge<LongWritable, FloatWritable>> it =
+          vertex.getEdges().iterator();
+      while (it.hasNext()) {
+        Edge<LongWritable, FloatWritable> edge = it.next();
+        tmpGVertex.putToEdges(
+            new Utf8(edge.getTargetVertexId().toString()),
+            new Utf8(edge.getValue().toString()));
+      }
+      getLogger().debug("GoraObject created: " + tmpGVertex.toString());
+      return tmpGVertex;
     }
-  
+
+    @Override
+    protected Object getGoraKey(
+        Vertex<LongWritable, DoubleWritable, FloatWritable> vertex) {
+      String goraKey = String.valueOf(vertex.getId());
+      return goraKey;
+    }
   }
 }

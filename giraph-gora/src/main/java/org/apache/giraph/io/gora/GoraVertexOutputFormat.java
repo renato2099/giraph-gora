@@ -85,30 +85,6 @@ public abstract class GoraVertexOutputFormat<
   @Override
   public void checkOutputSpecs(JobContext context)
     throws IOException, InterruptedException {
-    String sDataStoreType =
-        GIRAPH_GORA_OUTPUT_DATASTORE_CLASS.get(context.getConfiguration());
-    String sKeyType =
-        GIRAPH_GORA_OUTPUT_KEY_CLASS.get(context.getConfiguration());
-    String sPersistentType =
-        GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.get(context.getConfiguration());
-    LOG.info("output.datastore.class" + sDataStoreType);
-    LOG.info("giraph.gora.output.key.class" + sKeyType);
-    LOG.info("giraph.gora.output.persistent.class" + sPersistentType);
-    try {
-      Class<?> keyClass = Class.forName(sKeyType);
-      Class<?> persistentClass = Class.forName(sPersistentType);
-      Class<?> dataStoreClass = Class.forName(sDataStoreType);
-      setKeyClass(keyClass);
-      setPersistentClass((Class<? extends Persistent>) persistentClass);
-      setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
-      setDataStore(createDataStore());
-      if (getDataStore() != null) {
-        LOG.info("Un data store fue creado");
-      }
-    } catch (ClassNotFoundException e) {
-      LOG.error("Error while reading Gora Output parameters");
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -121,7 +97,7 @@ public abstract class GoraVertexOutputFormat<
       dsCreated = GoraUtils.createSpecificDataStore(getDatastoreClass(),
           getKeyClass(), getPersistentClass());
     } catch (GoraException e) {
-      LOG.error("Error creating data store.");
+      getLogger().error("Error creating data store.");
       e.printStackTrace();
     }
     return dsCreated;
@@ -140,6 +116,7 @@ public abstract class GoraVertexOutputFormat<
     throws IOException, InterruptedException {
     return new NullOutputCommitter();
   }
+
   /**
    * Empty output commiter for hadoop.
    */
@@ -176,6 +153,27 @@ public abstract class GoraVertexOutputFormat<
     @Override
     public void initialize(TaskAttemptContext context)
       throws IOException, InterruptedException {
+      String sDataStoreType =
+        GIRAPH_GORA_OUTPUT_DATASTORE_CLASS.get(getConf());
+      String sKeyType =
+        GIRAPH_GORA_OUTPUT_KEY_CLASS.get(getConf());
+      String sPersistentType =
+        GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.get(getConf());
+      try {
+        Class<?> keyClass = Class.forName(sKeyType);
+        Class<?> persistentClass = Class.forName(sPersistentType);
+        Class<?> dataStoreClass = Class.forName(sDataStoreType);
+        setKeyClass(keyClass);
+        setPersistentClass((Class<? extends Persistent>) persistentClass);
+        setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
+        setDataStore(createDataStore());
+        if (getDataStore() != null) {
+          getLogger().debug("The data store has been created.");
+        }
+      } catch (ClassNotFoundException e) {
+        getLogger().error("Error while reading Gora Output parameters");
+        e.printStackTrace();
+      }
     }
 
     @Override
@@ -189,19 +187,17 @@ public abstract class GoraVertexOutputFormat<
     public void writeVertex(Vertex<I, V, E> vertex)
       throws IOException, InterruptedException {
       Persistent goraVertex = null;
-      Object goraKey = null;
-      goraKey = vertex.getId();
+      Object goraKey = getGoraKey(vertex);
       goraVertex = getGoraVertex(vertex);
       getDataStore().put(goraKey, goraVertex);
-      getDataStore().flush();
     }
 
     @Override
     public void process(WatchedEvent event) {
       EventType type = event.getType();
       if (type == EventType.NodeChildrenChanged) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("signal: number of children changed.");
+        if (getLogger().isDebugEnabled()) {
+          getLogger().debug("signal: number of children changed.");
         }
         synchronized (lock) {
           lock.notify();
@@ -217,6 +213,13 @@ public abstract class GoraVertexOutputFormat<
      * @return          Gora representation of the vertex
      */
     protected abstract Persistent getGoraVertex(Vertex<I, V, E> vertex);
+
+    /**
+     * Gets the correct key from a computed vertex.
+     * @param vertex  vertex to extract the key from.
+     * @return        The key representing such vertex
+     */
+    protected abstract Object getGoraKey(Vertex<I, V, E> vertex);
 
   }
 
@@ -282,5 +285,13 @@ public abstract class GoraVertexOutputFormat<
   public static void setDatastoreClass(
       Class<? extends DataStore> dataStoreClass) {
     DATASTORE_CLASS = dataStoreClass;
+  }
+
+  /**
+   * Returns a logger.
+   * @return the log for the output format.
+   */
+  public static Logger getLogger() {
+    return LOG;
   }
 }

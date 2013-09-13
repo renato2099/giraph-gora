@@ -29,4 +29,14 @@
     <field name="edges" family="vertices" qualifier="edges"/>
   </class>
 
+  <table name="graphGiraphResults">
+    <family name="vertices"/>
+  </table>
+
+  <class name="org.apache.giraph.io.gora.generated.GVertexResult" keyClass="java.lang.String" table="graphGiraphResults">
+    <field name="vertexId" family="vertices" qualifier="vertexId"/>
+    <field name="value" family="vertices" qualifier="value"/>
+    <field name="edges" family="vertices" qualifier="edges"/>
+  </class>
+
 </gora-orm>

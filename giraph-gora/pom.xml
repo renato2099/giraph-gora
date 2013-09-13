@@ -106,11 +106,17 @@ under the License.
       <groupId>org.apache.gora</groupId>
       <artifactId>gora-core</artifactId>
     </dependency>
+
+
+
     <dependency>
       <groupId>org.apache.gora</groupId>
       <artifactId>gora-hbase</artifactId>
       <version>0.3</version>
     </dependency>
+
+
+
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
