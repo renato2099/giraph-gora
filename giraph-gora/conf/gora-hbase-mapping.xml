@@ -39,10 +39,21 @@
     <field name="edges" family="vertices" qualifier="edges"/>
   </class>
 
-	<table name="graphGiraphEdges">
+  <table name="graphGiraphEdges">
     <family name="edges"/>
   </table>
   <class name="org.apache.giraph.io.gora.generated.GEdge" keyClass="java.lang.String" table="graphGiraphEdges">
+    <field name="edgeId" family="edges" qualifier="edgeId"/>
+    <field name="edgeWeight" family="edges" qualifier="edgeWeight"/>
+    <field name="label" family="edges" qualifier="label"/>
+    <field name="vertexInId" family="edges" qualifier="vertexInId"/>
+    <field name="vertexOutId" family="edges" qualifier="vertexOutId"/>
+  </class>
+
+  <table name="graphGiraphResultEdges">
+    <family name="edges"/>
+  </table>
+  <class name="org.apache.giraph.io.gora.generated.GEdgeResult" keyClass="java.lang.String" table="graphGiraphResultEdges">
     <field name="edgeId" family="edges" qualifier="edgeId"/>
     <field name="edgeWeight" family="edges" qualifier="edgeWeight"/>
     <field name="label" family="edges" qualifier="label"/>

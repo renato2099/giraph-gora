@@ -52,7 +52,7 @@ public class GoraGVertexVertexOutputFormat
   }
 
   /**
-   * Rexster vertex writer.
+   * Gora vertex writer.
    */
   protected class GoraGVertexVertexWriter extends GoraVertexWriter {
 
