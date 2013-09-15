@@ -38,7 +38,7 @@ import org.junit.Test;
 /**
  * Test class for Gora vertex output formats.
  */
-public class TestGoraVertexOutputFormat {
+public class TestGoraVertexOutputFormat extends AbstractTestGoraVertexFormat {
 
   @Test
   public void getWritingDb() throws Exception {

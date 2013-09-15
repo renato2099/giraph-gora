@@ -41,7 +41,7 @@ import org.junit.Assert;
 /**
  * Test class for Gora vertex input/output formats.
  */
-public class TestGoraEdgeInputFormat extends AbstractTestGoraVertexFormat{
+public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
 
   @Test
   public void getEmptyDb() throws Exception {
