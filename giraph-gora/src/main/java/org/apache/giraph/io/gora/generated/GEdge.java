@@ -33,25 +33,42 @@ public class GEdge extends PersistentBase {
   /**
    * Schema used for the class.
    */
-  public static final Schema OBJ_SCHEMA = Schema.parse(
-      "{\"type\":\"record\",\"name\":\"Edge\"," +
-      "\"namespace\":\"org.apache.giraph.gora.generated\"," +
-      "\"fields\":[{\"name\":\"vertexId\",\"type\":\"string\"}," +
-      "{\"name\":\"edgeValue\",\"type\":\"float\"}]}");
+  public static final Schema OBJ_SCHEMA = Schema.parse("{\"type\":\"record\"," +
+    "\"name\":\"GEdge\",\"namespace\":\"org.apache.giraph.gora.generated\"," +
+    "\"fields\":[{\"name\":\"edgeId\",\"type\":\"string\"}," +
+    "{\"name\":\"edgeWeight\",\"type\":\"float\"}," +
+    "{\"name\":\"vertexInId\",\"type\":\"string\"}," +
+    "{\"name\":\"vertexOutId\",\"type\":\"string\"}," +
+    "{\"name\":\"label\",\"type\":\"string\"}]}");
 
   /**
    * Field enum
    */
   public static enum Field {
     /**
-     * VertexId
+     * Edge id.
      */
-    VERTEX_ID(0, "vertexId"),
+    EDGE_ID(0, "edgeId"),
 
     /**
-     * Edge value
+     * Edge weight.
      */
-    EDGE_VALUE(1, "edgeValue");
+    EDGE_WEIGHT(1, "edgeWeight"),
+
+    /**
+     * Edge vertex source id.
+     */
+    VERTEX_IN_ID(2, "vertexInId"),
+
+    /**
+     * Edge vertex end id.
+     */
+    VERTEX_OUT_ID(3, "vertexOutId"),
+
+    /**
+     * Edge label.
+     */
+    LABEL(4, "label");
 
     /**
      * Field index
@@ -102,7 +119,7 @@ public class GEdge extends PersistentBase {
    * Array containing all fields/
    */
   private static final String[] ALL_FIELDS = {
-    "vertexId", "edgeValue"
+    "edgeId", "edgeWeight", "vertexInId", "vertexOutId", "label"
   };
 
   static {
@@ -110,17 +127,32 @@ public class GEdge extends PersistentBase {
   }
 
   /**
-   * vertexId
+   * edgeId
    */
-  private Utf8 vertexId;
+  private Utf8 edgeId;
 
   /**
-   * edgeValue
+   * edgeWeight
    */
-  private float edgeValue;
+  private float edgeWeight;
 
   /**
-   * Default constructor
+   * vertexInId
+   */
+  private Utf8 vertexInId;
+
+  /**
+   * vertexOutId
+   */
+  private Utf8 vertexOutId;
+
+  /**
+   * label
+   */
+  private Utf8 label;
+
+  /**
+   * Default constructor.
    */
   public GEdge() {
     this(new StateManagerImpl());
@@ -159,9 +191,15 @@ public class GEdge extends PersistentBase {
   public Object get(int fieldIndex) {
     switch (fieldIndex) {
     case 0:
-      return vertexId;
+      return edgeId;
     case 1:
-      return edgeValue;
+      return edgeWeight;
+    case 2:
+      return vertexInId;
+    case 3:
+      return vertexOutId;
+    case 4:
+      return label;
     default:
       throw new AvroRuntimeException("Bad index");
     }
@@ -180,43 +218,97 @@ public class GEdge extends PersistentBase {
     getStateManager().setDirty(this, fieldIndex);
     switch (fieldIndex) {
     case 0:
-      vertexId = (Utf8) fieldValue; break;
+      edgeId = (Utf8) fieldValue; break;
     case 1:
-      edgeValue = (Float) fieldValue; break;
+      edgeWeight = (Float) fieldValue; break;
+    case 2:
+      vertexInId = (Utf8) fieldValue; break;
+    case 3:
+      vertexOutId = (Utf8) fieldValue; break;
+    case 4:
+      label = (Utf8) fieldValue; break;
     default:
       throw new AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets vertexId
-   * @return Utf8 vertexId
+   * Gets edgeId
+   * @return Utf8 edgeId
    */
-  public Utf8 getVertexId() {
+  public Utf8 getEdgeId() {
     return (Utf8) get(0);
   }
 
   /**
-   * Sets vertexId
-   * @param value vertexId
+   * Sets edgeId
+   * @param value edgeId
    */
-  public void setVertexId(Utf8 value) {
+  public void setEdgeId(Utf8 value) {
     put(0, value);
   }
 
   /**
-   * Gets EdgeValue
-   * @return Utf8 EdgeValue
+   * Gets edgeWeight
+   * @return float edgeWeight
    */
-  public float getEdgeValue() {
+  public float getEdgeWeight() {
     return (Float) get(1);
   }
 
   /**
-   * Sets EdgeValue.
-   * @param value EdgeValue
+   * Sets edgeWeight
+   * @param value edgeWeight
    */
-  public void setEdgeValue(float value) {
+  public void setEdgeWeight(float value) {
     put(1, value);
+  }
+
+  /**
+   * Gets edgeVertexInId
+   * @return Utf8 edgeVertexInId
+   */
+  public Utf8 getVertexInId() {
+    return (Utf8) get(2);
+  }
+
+  /**
+   * Sets edgeVertexInId
+   * @param value edgeVertexInId
+   */
+  public void setVertexInId(Utf8 value) {
+    put(2, value);
+  }
+
+  /**
+   * Gets edgeVertexOutId
+   * @return Utf8 edgeVertexOutId
+   */
+  public Utf8 getVertexOutId() {
+    return (Utf8) get(3);
+  }
+
+  /**
+   * Sets edgeVertexOutId
+   * @param value edgeVertexOutId
+   */
+  public void setVertexOutId(Utf8 value) {
+    put(3, value);
+  }
+
+  /**
+   * Gets edgeLabel
+   * @return Utf8 edgeLabel
+   */
+  public Utf8 getLabel() {
+    return (Utf8) get(4);
+  }
+
+  /**
+   * Sets edgeLabel
+   * @param value edgeLabel
+   */
+  public void setLabel(Utf8 value) {
+    put(4, value);
   }
 }
