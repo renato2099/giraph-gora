@@ -54,11 +54,10 @@ public class GoraGEdgeEdgeOutputFormat
     extends GoraEdgeWriter {
 
     @Override
-    protected Persistent getGoraEdge(Edge<LongWritable, FloatWritable> edge) {
+    protected Persistent getGoraEdge(LongWritable srcId,
+        DoubleWritable srcValue, Edge<LongWritable, FloatWritable> edge) {
       GEdgeResult tmpGEdge = new GEdgeResult();
-      tmpGEdge.setEdgeId(new Utf8(String.valueOf(
-          edge.getTargetVertexId().get() + edge.getValue().get())));
-
+      tmpGEdge.setEdgeId(new Utf8(srcId.toString()));
       tmpGEdge.setEdgeWeight(edge.getValue().get());
       tmpGEdge.setVertexOutId(new Utf8(edge.getTargetVertexId().toString()));
       getLogger().info("putada del edge" + edge.toString());
@@ -67,7 +66,8 @@ public class GoraGEdgeEdgeOutputFormat
     }
 
     @Override
-    protected Object getGoraKey(Edge<LongWritable, FloatWritable> edge) {
+    protected Object getGoraKey(LongWritable srcId,
+        DoubleWritable srcValue, Edge<LongWritable, FloatWritable> edge) {
       String goraKey = String.valueOf(
           edge.getTargetVertexId().get() + edge.getValue().get());
       return goraKey;

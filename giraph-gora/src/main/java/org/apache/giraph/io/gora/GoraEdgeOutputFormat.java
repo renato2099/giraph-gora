@@ -180,8 +180,8 @@ public abstract class GoraEdgeOutputFormat<I extends WritableComparable,
     public void writeEdge(I srcId, V srcValue, Edge<I, E> edge)
       throws IOException, InterruptedException {
       Persistent goraEdge = null;
-      Object goraKey = getGoraKey(edge);
-      goraEdge = getGoraEdge(edge);
+      Object goraKey = getGoraKey(srcId, srcValue, edge);
+      goraEdge = getGoraEdge(srcId, srcValue, edge);
       getDataStore().put(goraKey, goraEdge);
     }
 
@@ -192,14 +192,14 @@ public abstract class GoraEdgeOutputFormat<I extends WritableComparable,
      * @param  edge   edge to be transformed into a Gora object
      * @return          Gora representation of the vertex
      */
-    protected abstract Persistent getGoraEdge(Edge<I, E> edge);
+    protected abstract Persistent getGoraEdge(I srcId, V srcValue, Edge<I, E> edge);
 
     /**
      * Gets the correct key from a computed vertex.
      * @param edge  edge to extract the key from.
      * @return      The key representing such edge.
      */
-    protected abstract Object getGoraKey(Edge<I, E> edge);
+    protected abstract Object getGoraKey(I srcId, V srcValue, Edge<I, E> edge);
   }
 
   /**
