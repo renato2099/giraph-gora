@@ -85,7 +85,7 @@ public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
-    conf.setEdgeInputFormatClass(GoraGEdgeEdgeInputFormat.class);
+    conf.setEdgeInputFormatClass(GoraTestEdgeInputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
     if (results instanceof Collection<?>) {
