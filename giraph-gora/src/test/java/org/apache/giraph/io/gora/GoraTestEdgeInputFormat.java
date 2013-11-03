@@ -88,7 +88,7 @@ public abstract class GoraTestEdgeInputFormat
   /** Data store used for querying data. */
   private static DataStore DATA_STORE;
 
-  /** counter for iinput records */
+  /** counter for input records */
   private static int RECORD_COUNTER = 0;
 
   /** Delegate Gora input format */
