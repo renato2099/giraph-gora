@@ -60,7 +60,6 @@ public class GoraGEdgeEdgeOutputFormat
       tmpGEdge.setEdgeId(new Utf8(srcId.toString()));
       tmpGEdge.setEdgeWeight(edge.getValue().get());
       tmpGEdge.setVertexOutId(new Utf8(edge.getTargetVertexId().toString()));
-      getLogger().info("putada del edge" + edge.toString());
       getLogger().debug("GoraObject created: " + tmpGEdge.toString());
       return tmpGEdge;
     }

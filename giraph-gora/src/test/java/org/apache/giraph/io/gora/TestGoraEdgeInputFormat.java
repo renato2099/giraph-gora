@@ -25,12 +25,14 @@ import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GOR
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_START_KEY;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.io.formats.IdWithValueTextOutputFormat;
 import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
@@ -41,7 +43,7 @@ import org.junit.Assert;
 /**
  * Test class for Gora vertex input/output formats.
  */
-public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
+public class TestGoraEdgeInputFormat {
 
   @Test
   public void getEmptyDb() throws Exception {
@@ -56,7 +58,7 @@ public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
     GIRAPH_GORA_PERSISTENT_CLASS.
     set(conf,"org.apache.giraph.io.gora.generated.GEdge");
     GIRAPH_GORA_START_KEY.set(conf,"1");
-    GIRAPH_GORA_END_KEY.set(conf,"10");
+    GIRAPH_GORA_END_KEY.set(conf,"3");
     conf.set("io.serializations",
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
@@ -80,16 +82,24 @@ public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
     GIRAPH_GORA_PERSISTENT_CLASS.
     set(conf,"org.apache.giraph.io.gora.generated.GEdge");
     GIRAPH_GORA_START_KEY.set(conf,"1");
-    GIRAPH_GORA_END_KEY.set(conf,"100");
+    GIRAPH_GORA_END_KEY.set(conf,"4");
     conf.set("io.serializations",
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
     conf.setEdgeInputFormatClass(GoraTestEdgeInputFormat.class);
+    conf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
-    if (results instanceof Collection<?>) {
-      Assert.assertTrue((((Collection<?>)results).size())>=0);
+    Assert.assertEquals(3, ((ArrayList<?>)results).size());
+    if (results instanceof Collection<?>
+    & (((Collection<?>)results).size() == 2)) {
+      Assert.assertEquals("33\t0.0",
+          ((ArrayList<?>)results).get(0).toString());
+      Assert.assertEquals("22\t0.0",
+          ((ArrayList<?>)results).get(1).toString());
+      Assert.assertEquals("11\t0.0",
+          ((ArrayList<?>)results).get(2).toString());
     }
   }
 
@@ -105,6 +115,7 @@ public class TestGoraEdgeInputFormat extends AbstractTestGoraEdgeFormat{
     public void compute(
         Vertex<LongWritable, DoubleWritable, FloatWritable> vertex,
         Iterable<LongWritable> messages) throws IOException {
+      Assert.assertNotNull(vertex);
       vertex.voteToHalt();
     }
   }

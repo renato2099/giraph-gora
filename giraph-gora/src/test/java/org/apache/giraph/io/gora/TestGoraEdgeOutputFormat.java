@@ -28,24 +28,27 @@ import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GOR
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.apache.giraph.conf.GiraphConfiguration;
-import org.apache.giraph.io.gora.TestGoraVertexInputFormat.EmptyComputation;
+import org.apache.giraph.graph.BasicComputation;
+import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.InternalVertexRunner;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Test class for Gora edge output formats.
  */
-public class TestGoraEdgeOutputFormat extends AbstractTestGoraEdgeFormat {
+public class TestGoraEdgeOutputFormat {
 
   @Test
   public void getWritingDb() throws Exception {
     Iterable<String>    results;
-    Iterator<String>    result;
     GiraphConfiguration conf    = new GiraphConfiguration();
+    // Parameters for input
     GIRAPH_GORA_DATASTORE_CLASS.
     set(conf, "org.apache.gora.memory.store.MemStore");
     GIRAPH_GORA_KEYS_FACTORY_CLASS.
@@ -54,20 +57,37 @@ public class TestGoraEdgeOutputFormat extends AbstractTestGoraEdgeFormat {
     GIRAPH_GORA_PERSISTENT_CLASS.
     set(conf,"org.apache.giraph.io.gora.generated.GEdge");
     GIRAPH_GORA_START_KEY.set(conf,"1");
-    GIRAPH_GORA_END_KEY.set(conf,"10");
-    GIRAPH_GORA_OUTPUT_DATASTORE_CLASS.
-    set(conf, "org.apache.gora.memory.store.MemStore");
-    GIRAPH_GORA_OUTPUT_KEY_CLASS.set(conf, "java.lang.String");
-    GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.
-    set(conf, "org.apache.giraph.io.gora.generated.GEdgeResult");
+    GIRAPH_GORA_END_KEY.set(conf,"4");
     conf.set("io.serializations",
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
-    conf.setVertexInputFormatClass(GoraGVertexVertexInputFormat.class);
+    conf.setEdgeInputFormatClass(GoraTestEdgeInputFormat.class);
+    // Parameters for output
+    GIRAPH_GORA_OUTPUT_DATASTORE_CLASS.
+    set(conf, "org.apache.gora.memory.store.MemStore");
+    GIRAPH_GORA_OUTPUT_KEY_CLASS.set(conf, "java.lang.String");
+    GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.
+    set(conf,"org.apache.giraph.io.gora.generated.GEdge");
+    conf.setEdgeOutputFormatClass(GoraTestEdgeOutputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
-    result = results.iterator();
-    Assert.assertFalse(result.hasNext());
+  }
+
+  /*
+  Test compute method that sends each edge a notification of its parents.
+  The test set only has a 1-1 parent-to-child ratio for this unit test.
+   */
+  public static class EmptyComputation
+    extends BasicComputation<LongWritable, DoubleWritable,
+    FloatWritable, LongWritable> {
+
+    @Override
+    public void compute(
+        Vertex<LongWritable, DoubleWritable, FloatWritable> vertex,
+        Iterable<LongWritable> messages) throws IOException {
+      Assert.assertNotNull(vertex);
+      vertex.voteToHalt();
+    }
   }
 }

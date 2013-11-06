@@ -25,12 +25,14 @@ import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GOR
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_START_KEY;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.io.formats.IdWithValueTextOutputFormat;
 import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
@@ -41,7 +43,7 @@ import org.junit.Assert;
 /**
  * Test class for Gora vertex input/output formats.
  */
-public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
+public class TestGoraVertexInputFormat {
 
   @Test
   public void getEmptyDb() throws Exception {
@@ -61,7 +63,7 @@ public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
-    conf.setVertexInputFormatClass(GoraGVertexVertexInputFormat.class);
+    conf.setVertexInputFormatClass(GoraTestVertexInputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
     result = results.iterator();
@@ -85,11 +87,19 @@ public class TestGoraVertexInputFormat extends AbstractTestGoraVertexFormat{
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
-    conf.setVertexInputFormatClass(GoraGVertexVertexInputFormat.class);
+    conf.setVertexInputFormatClass(GoraTestVertexInputFormat.class);
+    conf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
-    if (results instanceof Collection<?>) {
-      Assert.assertTrue((((Collection<?>)results).size())>=0);
+    Assert.assertEquals(3, ((ArrayList<?>)results).size());
+    if (results instanceof Collection<?>
+    & (((Collection<?>)results).size() == 3)) {
+      Assert.assertEquals("10\t0.0",
+          ((ArrayList<?>)results).get(0).toString());
+      Assert.assertEquals("1\t0.0",
+          ((ArrayList<?>)results).get(1).toString());
+      Assert.assertEquals("100\t0.0",
+          ((ArrayList<?>)results).get(2).toString());
     }
   }
 

@@ -17,448 +17,116 @@
  */
 package org.apache.giraph.io.gora;
 
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_DATASTORE_CLASS;
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_END_KEY;
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_KEYS_FACTORY_CLASS;
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_KEY_CLASS;
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_PERSISTENT_CLASS;
-import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_START_KEY;
-
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.avro.util.Utf8;
 import org.apache.giraph.edge.Edge;
-import org.apache.giraph.io.EdgeInputFormat;
-import org.apache.giraph.io.EdgeReader;
+import org.apache.giraph.edge.EdgeFactory;
+import org.apache.giraph.io.gora.GoraEdgeInputFormat;
 import org.apache.giraph.io.gora.generated.GEdge;
-import org.apache.giraph.io.gora.utils.ExtraGoraInputFormat;
-import org.apache.giraph.io.gora.utils.GoraUtils;
-import org.apache.giraph.io.gora.utils.KeyFactory;
-import org.apache.gora.persistency.Persistent;
-import org.apache.gora.query.Query;
-import org.apache.gora.query.Result;
-import org.apache.gora.store.DataStore;
-import org.apache.gora.util.GoraException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.log4j.Logger;
 
 /**
- *  Class which wraps the GoraInputFormat. It's designed
- *  as an extension point to EdgeInputFormat subclasses who wish
- *  to read from Gora data sources.
- *
- *  Works with
- *  {@link GoraVertexOutputFormat}
- *
- * @param <I> vertex id type
- * @param <E>  edge type
+ * Implementation of a specific reader for a generated data bean.
  */
-public abstract class GoraTestEdgeInputFormat
-  <I extends WritableComparable, E extends Writable>
-  extends EdgeInputFormat<I, E> {
-
-  /** Start key for querying Gora data store. */
-  private static Object START_KEY;
-
-  /** End key for querying Gora data store. */
-  private static Object END_KEY;
-
-  /** Logger for Gora's vertex input format. */
-  private static final Logger LOG =
-          Logger.getLogger(GoraEdgeInputFormat.class);
-
-  /** KeyClass used for getting data. */
-  private static Class<?> KEY_CLASS;
-
-  /** The vertex itself will be used as a value inside Gora. */
-  private static Class<? extends Persistent> PERSISTENT_CLASS;
-
-  /** Data store class to be used as backend. */
-  private static Class<? extends DataStore> DATASTORE_CLASS;
-
-  /** Class used to transform strings into Keys */
-  private static Class<?> KEY_FACTORY_CLASS;
-
-  /** Data store used for querying data. */
-  private static DataStore DATA_STORE;
-
-  /** counter for iinput records */
-  private static int RECORD_COUNTER = 0;
-
-  /** Delegate Gora input format */
-  private static ExtraGoraInputFormat GORA_INPUT_FORMAT =
-         new ExtraGoraInputFormat();
+public class GoraTestEdgeInputFormat
+  extends GoraEdgeInputFormat<LongWritable, FloatWritable> {
 
   /**
-   * @param conf configuration parameters
+   * Default constructor
    */
-  public void checkInputSpecs(Configuration conf) {
-    String sDataStoreType =
-        GIRAPH_GORA_DATASTORE_CLASS.get(getConf());
-    String sKeyType =
-        GIRAPH_GORA_KEY_CLASS.get(getConf());
-    String sPersistentType =
-        GIRAPH_GORA_PERSISTENT_CLASS.get(getConf());
-    String sKeyFactoryClass =
-        GIRAPH_GORA_KEYS_FACTORY_CLASS.get(getConf());
-    try {
-      Class<?> keyClass = Class.forName(sKeyType);
-      Class<?> persistentClass = Class.forName(sPersistentType);
-      Class<?> dataStoreClass = Class.forName(sDataStoreType);
-      Class<?> keyFactoryClass = Class.forName(sKeyFactoryClass);
-      setKeyClass(keyClass);
-      setPersistentClass((Class<? extends Persistent>) persistentClass);
-      setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
-      setKeyFactoryClass(keyFactoryClass);
-      setDataStore(createDataStore());
-      GORA_INPUT_FORMAT.setDataStore(getDataStore());
-      putArtificialData();
-    } catch (ClassNotFoundException e) {
-      LOG.error("Error while reading Gora Input parameters");
-      e.printStackTrace();
-    }
+  public GoraTestEdgeInputFormat() {
   }
 
   /**
-   * Gets the splits for a data store.
-   * @param context JobContext
-   * @param minSplitCountHint Hint for a minimum split count
-   * @return List<InputSplit> A list of splits
+   * Creates specific vertex reader to be used inside Hadoop.
+   * @param split split to be read.
+   * @param context JobContext to be used.
+   * @return GoraEdgeReader Edge reader to be used by Hadoop.
    */
   @Override
-  public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
-    throws IOException, InterruptedException {
+  public GoraEdgeReader createEdgeReader(
+      InputSplit split, TaskAttemptContext context) throws IOException {
     putArtificialData();
-    KeyFactory kFact = new KeyFactory();
-    String sKey = GIRAPH_GORA_START_KEY.get(getConf());
-    String eKey = GIRAPH_GORA_END_KEY.get(getConf());
-    if (sKey == null || sKey.isEmpty()) {
-      LOG.error("No start key has been defined.");
-      LOG.warn("Querying all the data store.");
-      sKey = null;
-      eKey = null;
-    }
-    kFact.setDataStore(getDataStore());
-    setStartKey(kFact.buildKey(sKey));
-    setEndKey(kFact.buildKey(eKey));
-    Query tmpQuery = GoraUtils.getQuery(
-        getDataStore(), getStartKey(), getEndKey());
-    GORA_INPUT_FORMAT.setQuery(tmpQuery);
-    List<InputSplit> splits = GORA_INPUT_FORMAT.getSplits(context);
-    return splits;
+    return new GoraGEdgeEdgeReader();
   }
 
-   /**
-     * Writes data into the data store in order to test it out.
-     */
-    private void putArtificialData() {
-      DATA_STORE.put("1", createEdge("1", "11", "22", "edge1", (float)1.0));
-      DATA_STORE.put("2", createEdge("2", "22", "11", "edge2", (float)2.0));
-      DATA_STORE.put("3", createEdge("3", "11", "33", "edge3", (float)3.0));
-      DATA_STORE.flush();
-    }
-
-    /**
-     * Creates an edge using an id and a set of edges.
-     * @param id Vertex id.
-     * @param vertexInId Vertex source Id.
-     * @param vertexOutId Vertex destination Id.
-     * @param edgeLabel Edge label.
-     * @param edgeWeight Edge wight.
-     * @return GEdge created.
-     */
-    private GEdge createEdge(String id, String vertexInId,
-        String vertexOutId, String edgeLabel, float edgeWeight) {
-      GEdge newEdge = new GEdge();
-      newEdge.setEdgeId(new Utf8(id));
-      newEdge.setVertexInId(new Utf8(vertexInId));
-      newEdge.setVertexOutId(new Utf8(vertexOutId));
-      newEdge.setLabel(new Utf8(edgeLabel));
-      newEdge.setEdgeWeight(edgeWeight);
-      return newEdge;
-    }
-
-  @Override
-  public abstract GoraEdgeReader createEdgeReader(InputSplit split,
-      TaskAttemptContext context) throws IOException;
+  /**
+   * Writes data into the data store in order to test it out.
+   */
+  @SuppressWarnings("unchecked")
+  private static void putArtificialData() {
+    getDataStore().put("11-22",
+        createEdge("11-22", "11", "22", "11-22", (float)(11+22)));
+    getDataStore().put("22-11",
+        createEdge("22-11", "22", "11", "22-11", (float)(22+11)));
+    getDataStore().put("11-33",
+        createEdge("11-33", "11", "33", "11-33", (float)(11+33)));
+    getDataStore().put("33-11",
+        createEdge("33-11", "33", "11", "33-11", (float)(33+11)));
+    getDataStore().flush();
+  }
 
   /**
-   * Abstract class to be implemented by the user based on their specific
-   * vertex input. Easiest to ignore the key value separator and only use
-   * key instead.
+   * Creates an edge using an id and a set of edges.
+   * @param id Vertex id.
+   * @param vertexInId Vertex source Id.
+   * @param vertexOutId Vertex destination Id.
+   * @param edgeLabel Edge label.
+   * @param edgeWeight Edge wight.
+   * @return GEdge created.
    */
-  protected abstract class GoraEdgeReader extends EdgeReader<I, E> {
-    /** current edge obtained from Rexster */
-    private Edge<I, E> edge;
-    /** Results gotten from Gora data store. */
-    private Result readResults;
+  private static GEdge createEdge(String id, String vertexInId,
+      String vertexOutId, String edgeLabel, float edgeWeight) {
+    GEdge newEdge = new GEdge();
+    newEdge.setEdgeId(new Utf8(id));
+    newEdge.setVertexInId(new Utf8(vertexInId));
+    newEdge.setVertexOutId(new Utf8(vertexOutId));
+    newEdge.setLabel(new Utf8(edgeLabel));
+    newEdge.setEdgeWeight(edgeWeight);
+    return newEdge;
+  }
 
-    @Override
-    public void initialize(InputSplit inputSplit, TaskAttemptContext context)
-      throws IOException, InterruptedException {
-      getResults();
-      putArtificialData();
-      RECORD_COUNTER = 0;
-    }
+  /**
+   * Gora edge reader
+   */
+  protected class GoraGEdgeEdgeReader extends GoraEdgeReader {
 
-    /**
-     * Writes data into the data store in order to test it out.
-     */
-    private void putArtificialData() {
-      DATA_STORE.put("1", createEdge("1", "11", "22", "edge1", (float)1.0));
-      DATA_STORE.put("2", createEdge("2", "22", "11", "edge2", (float)2.0));
-      DATA_STORE.put("3", createEdge("3", "11", "33", "edge3", (float)3.0));
-      DATA_STORE.flush();
-    }
+    /** source vertex of the edge */
+    private LongWritable sourceId;
 
     /**
-     * Creates an edge using an id and a set of edges.
-     * @param id Vertex id.
-     * @param vertexInId Vertex source Id.
-     * @param vertexOutId Vertex destination Id.
-     * @param edgeLabel Edge label.
-     * @param edgeWeight Edge wight.
-     * @return GEdge created.
-     */
-    private GEdge createEdge(String id, String vertexInId,
-        String vertexOutId, String edgeLabel, float edgeWeight) {
-      GEdge newEdge = new GEdge();
-      newEdge.setEdgeId(new Utf8(id));
-      newEdge.setVertexInId(new Utf8(vertexInId));
-      newEdge.setVertexOutId(new Utf8(vertexOutId));
-      newEdge.setLabel(new Utf8(edgeLabel));
-      newEdge.setEdgeWeight(edgeWeight);
-      return newEdge;
-    }
-
-    /**
-     * Gets the next edge from Gora data store.
-     * @return true/false depending on the existence of vertices.
-     * @throws IOException exceptions passed along.
-     * @throws InterruptedException exceptions passed along.
+     * Transforms a GoraObject into an Edge object.
+     * @param goraObject Object from Gora to be translated.
+     * @return Edge Result from transforming the gora object.
      */
     @Override
-    // CHECKSTYLE: stop IllegalCatch
-    public boolean nextEdge() throws IOException, InterruptedException {
-      boolean flg = false;
-      try {
-        flg = this.getReadResults().next();
-        this.edge = transformEdge(this.getReadResults().get());
-        LOG.info("Conho Edge " + this.edge.toString());
-        RECORD_COUNTER++;
-      } catch (Exception e) {
-        LOG.debug("Error transforming vertices.");
-        flg = false;
-      }
-      LOG.debug(RECORD_COUNTER + " were transformed.");
-      return flg;
+    protected Edge<LongWritable, FloatWritable> transformEdge
+    (Object goraObject) {
+      Edge<LongWritable, FloatWritable> edge = null;
+      GEdge goraEdge = (GEdge) goraObject;
+      Long dest;
+      Long value;
+      dest = Long.valueOf(goraEdge.getVertexOutId().toString());
+      this.sourceId = new LongWritable();
+      this.sourceId.set(Long.valueOf(goraEdge.getVertexInId().toString()));
+      value = (long) goraEdge.getEdgeWeight();
+      edge = EdgeFactory.create(new LongWritable(dest),
+          new FloatWritable(value));
+      return edge;
     }
-    // CHECKSTYLE: resume IllegalCatch
 
     /**
-     * Gets the progress of reading results from Gora.
-     * @return the progress of reading results from Gora.
+     * Gets the currentSourceId for the edge.
+     * @return LongWritable currentSourceId for the edge.
      */
     @Override
-    public float getProgress() throws IOException, InterruptedException {
-      float progress = 0.0f;
-      if (getReadResults() != null) {
-        progress = getReadResults().getProgress();
-      }
-      return progress;
+    public LongWritable getCurrentSourceId() throws IOException,
+        InterruptedException {
+      return this.sourceId;
     }
-
-    /**
-     * Gets current edge.
-     *
-     * @return  The edge object represented by a Gora object
-     */
-    @Override
-    public Edge<I, E> getCurrentEdge()
-      throws IOException, InterruptedException {
-      return this.edge;
-    }
-
-    /**
-     * Parser for a single Gora object
-     *
-     * @param   goraObject vertex represented as a GoraObject
-     * @return  The edge object represented by a Gora object
-     */
-    protected abstract Edge<I, E> transformEdge(Object goraObject);
-
-    /**
-     * Performs a range query to a Gora data store.
-     */
-    protected void getResults() {
-      setReadResults(GoraUtils.getRequest(getDataStore(),
-          getStartKey(), getEndKey()));
-    }
-
-    /**
-     * Finishes the reading process.
-     * @throws IOException.
-     */
-    @Override
-    public void close() throws IOException {
-    }
-
-    /**
-     * Gets the results read.
-     * @return results read.
-     */
-    Result getReadResults() {
-      return readResults;
-    }
-
-    /**
-     * Sets the results read.
-     * @param readResults results read.
-     */
-    void setReadResults(Result readResults) {
-      this.readResults = readResults;
-    }
-  }
-
-  /**
-   * Gets the data store object initialized.
-   * @return DataStore created
-   */
-  public DataStore createDataStore() {
-    DataStore dsCreated = null;
-    try {
-      dsCreated = GoraUtils.createSpecificDataStore(getDatastoreClass(),
-          getKeyClass(), getPersistentClass());
-    } catch (GoraException e) {
-      LOG.error("Error creating data store.");
-      e.printStackTrace();
-    }
-    return dsCreated;
-  }
-
-  /**
-   * Gets the persistent Class
-   * @return persistentClass used
-   */
-  static Class<? extends Persistent> getPersistentClass() {
-    return PERSISTENT_CLASS;
-  }
-
-  /**
-   * Sets the persistent Class
-   * @param persistentClassUsed to be set
-   */
-  static void setPersistentClass
-  (Class<? extends Persistent> persistentClassUsed) {
-    PERSISTENT_CLASS = persistentClassUsed;
-  }
-
-  /**
-   * Gets the key class used.
-   * @return the key class used.
-   */
-  static Class<?> getKeyClass() {
-    return KEY_CLASS;
-  }
-
-  /**
-   * Sets the key class used.
-   * @param keyClassUsed key class used.
-   */
-  static void setKeyClass(Class<?> keyClassUsed) {
-    KEY_CLASS = keyClassUsed;
-  }
-
-  /**
-   * @return Class the DATASTORE_CLASS
-   */
-  public static Class<? extends DataStore> getDatastoreClass() {
-    return DATASTORE_CLASS;
-  }
-
-  /**
-   * @param dataStoreClass the dataStore class to set
-   */
-  public static void setDatastoreClass(
-      Class<? extends DataStore> dataStoreClass) {
-    DATASTORE_CLASS = dataStoreClass;
-  }
-
-  /**
-   * Gets the start key for querying.
-   * @return the start key.
-   */
-  public Object getStartKey() {
-    return START_KEY;
-  }
-
-  /**
-   * Gets the start key for querying.
-   * @param startKey start key.
-   */
-  public static void setStartKey(Object startKey) {
-    START_KEY = startKey;
-  }
-
-  /**
-   * Gets the end key for querying.
-   * @return the end key.
-   */
-  static Object getEndKey() {
-    return END_KEY;
-  }
-
-  /**
-   * Sets the end key for querying.
-   * @param pEndKey start key.
-   */
-  static void setEndKey(Object pEndKey) {
-    END_KEY = pEndKey;
-  }
-
-  /**
-   * Gets the key factory class.
-   * @return the kEY_FACTORY_CLASS
-   */
-  static Class<?> getKeyFactoryClass() {
-    return KEY_FACTORY_CLASS;
-  }
-
-  /**
-   * Sets the key factory class.
-   * @param keyFactoryClass the keyFactoryClass to set.
-   */
-  static void setKeyFactoryClass(Class<?> keyFactoryClass) {
-    KEY_FACTORY_CLASS = keyFactoryClass;
-  }
-
-  /**
-   * Gets the data store.
-   * @return DataStore
-   */
-  public static DataStore getDataStore() {
-    return DATA_STORE;
-  }
-
-  /**
-   * Sets the data store
-   * @param dStore the dATA_STORE to set
-   */
-  public static void setDataStore(DataStore dStore) {
-    DATA_STORE = dStore;
-  }
-
-  /**
-   * Returns a logger.
-   * @return the log for the output format.
-   */
-  public static Logger getLogger() {
-    return LOG;
   }
 }

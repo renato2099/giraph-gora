@@ -190,13 +190,18 @@ public abstract class GoraEdgeOutputFormat<I extends WritableComparable,
      * a specific data store.
      *
      * @param  edge   edge to be transformed into a Gora object
+     * @param  srcId  source vertex id
+     * @param  srcValue  source vertex value
      * @return          Gora representation of the vertex
      */
-    protected abstract Persistent getGoraEdge(I srcId, V srcValue, Edge<I, E> edge);
+    protected abstract Persistent getGoraEdge
+      (I srcId, V srcValue, Edge<I, E> edge);
 
     /**
      * Gets the correct key from a computed vertex.
      * @param edge  edge to extract the key from.
+     * @param  srcId  source vertex id
+     * @param  srcValue  source vertex value
      * @return      The key representing such edge.
      */
     protected abstract Object getGoraKey(I srcId, V srcValue, Edge<I, E> edge);

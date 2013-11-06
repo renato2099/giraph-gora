@@ -27,8 +27,6 @@ import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GOR
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_OUTPUT_KEY_CLASS;
 import static org.apache.giraph.io.gora.constants.GiraphGoraConstants.GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS;
 
-import java.util.Iterator;
-
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.io.gora.TestGoraVertexInputFormat.EmptyComputation;
 import org.apache.giraph.utils.InternalVertexRunner;
@@ -38,12 +36,11 @@ import org.junit.Test;
 /**
  * Test class for Gora vertex output formats.
  */
-public class TestGoraVertexOutputFormat extends AbstractTestGoraVertexFormat {
+public class TestGoraVertexOutputFormat {
 
   @Test
   public void getWritingDb() throws Exception {
     Iterable<String>    results;
-    Iterator<String>    result;
     GiraphConfiguration conf    = new GiraphConfiguration();
     GIRAPH_GORA_DATASTORE_CLASS.
     set(conf, "org.apache.gora.memory.store.MemStore");
@@ -58,15 +55,20 @@ public class TestGoraVertexOutputFormat extends AbstractTestGoraVertexFormat {
     set(conf, "org.apache.gora.memory.store.MemStore");
     GIRAPH_GORA_OUTPUT_KEY_CLASS.set(conf, "java.lang.String");
     GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.
-    set(conf, "org.apache.giraph.io.gora.generated.GVertexResult");
+    set(conf, "org.apache.giraph.io.gora.generated.GVertex");
     conf.set("io.serializations",
         "org.apache.hadoop.io.serializer.WritableSerialization," +
         "org.apache.hadoop.io.serializer.JavaSerialization");
     conf.setComputationClass(EmptyComputation.class);
-    conf.setVertexInputFormatClass(GoraGVertexVertexInputFormat.class);
+    conf.setVertexInputFormatClass(GoraTestVertexInputFormat.class);
+    // Parameters for output
+    GIRAPH_GORA_OUTPUT_DATASTORE_CLASS.
+    set(conf, "org.apache.gora.memory.store.MemStore");
+    GIRAPH_GORA_OUTPUT_KEY_CLASS.set(conf, "java.lang.String");
+    GIRAPH_GORA_OUTPUT_PERSISTENT_CLASS.
+    set(conf,"org.apache.giraph.io.gora.generated.GVertex");
+    conf.setVertexOutputFormatClass(GoraTestVertexOutputFormat.class);
     results = InternalVertexRunner.run(conf, new String[0], new String[0]);
     Assert.assertNotNull(results);
-    result = results.iterator();
-    Assert.assertFalse(result.hasNext());
   }
 }
