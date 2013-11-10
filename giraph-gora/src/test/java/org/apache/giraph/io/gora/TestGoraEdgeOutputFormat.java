@@ -52,7 +52,7 @@ public class TestGoraEdgeOutputFormat {
     GIRAPH_GORA_DATASTORE_CLASS.
     set(conf, "org.apache.gora.memory.store.MemStore");
     GIRAPH_GORA_KEYS_FACTORY_CLASS.
-    set(conf,"org.apache.giraph.io.gora.utils.KeyFactory");
+    set(conf,"org.apache.giraph.io.gora.utils.DefaultKeyFactory");
     GIRAPH_GORA_KEY_CLASS.set(conf,"java.lang.String");
     GIRAPH_GORA_PERSISTENT_CLASS.
     set(conf,"org.apache.giraph.io.gora.generated.GEdge");

@@ -26,7 +26,7 @@ import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.persistency.impl.StateManagerImpl;
 
 /**
- * Class for defining a Giraph-Edge.
+ * Example class for defining a Giraph-Edge.
  */
 @SuppressWarnings("all")
 public class GEdge extends PersistentBase {

@@ -28,7 +28,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
- * Implementation of a specific reader for a generated data bean.
+ * Example implementation of a specific reader for a generated data bean.
  */
 public class GoraGEdgeEdgeInputFormat
   extends GoraEdgeInputFormat<LongWritable, FloatWritable> {

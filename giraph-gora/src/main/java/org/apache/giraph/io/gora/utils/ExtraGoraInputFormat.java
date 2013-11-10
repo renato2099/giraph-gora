@@ -54,7 +54,7 @@ public class ExtraGoraInputFormat<K, T extends PersistentBase>
   /**
    * String used to map partitioned queries into configuration object.
    */
-  public static final String QUERY_KEY   = "gora.inputformat.query";
+  public static final String QUERY_KEY = "gora.inputformat.query";
 
   /**
    * Data store to be used.

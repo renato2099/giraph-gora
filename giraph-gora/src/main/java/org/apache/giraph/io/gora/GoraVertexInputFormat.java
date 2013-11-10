@@ -125,7 +125,7 @@ public abstract class GoraVertexInputFormat<
 
   /**
    * Create a vertex reader for a given split. Guaranteed to have been
-   * configured with setConf() prior to use.  The framework will also call
+   * configured with setConf() prior to use. The framework will also call
    * {@link VertexReader#initialize(InputSplit, TaskAttemptContext)} before
    * the split is used.
    *
@@ -146,11 +146,23 @@ public abstract class GoraVertexInputFormat<
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)
     throws IOException, InterruptedException {
-    KeyFactory kFact = new KeyFactory();
+    KeyFactory kFact = null;
+    try {
+      LOG.warn("Key factory class" + getKeyFactoryClass().getCanonicalName());
+      kFact = (KeyFactory) getKeyFactoryClass().newInstance();
+    } catch (InstantiationException e) {
+      LOG.error("Key factory was not instantiated. Please verify.");
+      LOG.error(e.getMessage());
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      LOG.error("Key factory was not instantiated. Please verify.");
+      LOG.error(e.getMessage());
+      e.printStackTrace();
+    }
     String sKey = GIRAPH_GORA_START_KEY.get(getConf());
     String eKey = GIRAPH_GORA_END_KEY.get(getConf());
     if (sKey == null || sKey.isEmpty()) {
-      LOG.error("No start key has been defined.");
+      LOG.warn("No start key has been defined.");
       LOG.warn("Querying all the data store.");
       sKey = null;
       eKey = null;

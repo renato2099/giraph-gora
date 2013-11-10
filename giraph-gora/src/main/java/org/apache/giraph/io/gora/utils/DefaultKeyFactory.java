@@ -17,38 +17,29 @@
  */
 package org.apache.giraph.io.gora.utils;
 
-import org.apache.gora.store.DataStore;
-
 /**
- * Class used to convert strings into more complex keys.
+ * Example class for defining a way to construct Gora keys. 
+ * Uses strings as keys inside Gora.
  */
-public abstract class KeyFactory {
-
-  /**
-   * Data store used for creating a new key.
-   */
-  private DataStore dataStore;
+public class DefaultKeyFactory extends KeyFactory {
 
   /**
    * Builds a key from a string parameter.
    * @param keyString the key object as a string.
    * @return the key object.
    */
-   public abstract Object buildKey(String keyString);
-
-  /**
-   * Gets the data store used in this factory.
-   * @return the dataStore
-   */
-  public DataStore getDataStore() {
-    return dataStore;
+  @Override
+  public Object buildKey(String keyString) {
+    Object key = null;
+    if (getDataStore() == null) {
+      throw new RuntimeException(
+          "DataStore must be defined before using a key Builder.");
+    } else {
+      key = getDataStore().newKey();
+      // Do specific transformation
+      key = keyString;
+    }
+    return key;
   }
 
-  /**
-   * Sets the data store used in this factory.
-   * @param dataStore the dataStore to set
-   */
-  public void setDataStore(DataStore dataStore) {
-    this.dataStore = dataStore;
-  }
 }

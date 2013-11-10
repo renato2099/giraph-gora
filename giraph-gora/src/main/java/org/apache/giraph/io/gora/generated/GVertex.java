@@ -29,7 +29,7 @@ import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.persistency.impl.StateManagerImpl;
 
 /**
- * Class for defining a Giraph-Vertex.
+ * Example class for defining a Giraph-Vertex.
  */
 @SuppressWarnings("all")
 public class GVertex extends PersistentBase {

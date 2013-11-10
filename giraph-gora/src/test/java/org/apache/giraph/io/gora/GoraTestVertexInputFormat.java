@@ -18,6 +18,8 @@
 package org.apache.giraph.io.gora;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.avro.util.Utf8;
@@ -32,16 +34,16 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
- * Example implementation of a specific reader for a generated data bean.
+ * Implementation of a specific reader for a generated data bean.
  */
-public class GoraGVertexVertexInputFormat
+public class GoraTestVertexInputFormat
   extends GoraVertexInputFormat<LongWritable, DoubleWritable,
           FloatWritable> {
 
   /**
    * DEfault constructor
    */
-  public GoraGVertexVertexInputFormat() {
+  public GoraTestVertexInputFormat() {
   }
 
   /**
@@ -53,7 +55,35 @@ public class GoraGVertexVertexInputFormat
   @Override
   public GoraVertexReader createVertexReader(
       InputSplit split, TaskAttemptContext context) throws IOException {
+    putArtificialData();
     return new GoraGVertexVertexReader();
+  }
+
+  /**
+   * Writes data into the data store in order to test it out.
+   */
+  @SuppressWarnings("unchecked")
+  private static void putArtificialData() {
+    getDataStore().put("1", createVertex("1", null));
+    getDataStore().put("10", createVertex("10", null));
+    getDataStore().put("100", createVertex("100", null));
+    getDataStore().flush();
+  }
+
+  /**
+   * Creates a vertex using an id and a set of edges.
+   * @param id Vertex id.
+   * @param edges Set of edges.
+   * @return GVertex created.
+   */
+  public static GVertex createVertex(String id, Map<String, String> edges) {
+    GVertex newVrtx = new GVertex();
+    newVrtx.setVertexId(new Utf8(id));
+    if (edges != null) {
+      for (String edgeId : edges.keySet())
+        newVrtx.putToEdges(new Utf8(edgeId), new Utf8(edges.get(edgeId)));
+    }
+    return newVrtx;
   }
 
   /**
