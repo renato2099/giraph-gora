@@ -148,8 +148,8 @@ public abstract class GoraVertexInputFormat<
     throws IOException, InterruptedException {
     KeyFactory kFact = null;
     try {
-      LOG.warn("Key factory class" + getKeyFactoryClass().getCanonicalName());
       kFact = (KeyFactory) getKeyFactoryClass().newInstance();
+      kFact.setDataStore(getDataStore());
     } catch (InstantiationException e) {
       LOG.error("Key factory was not instantiated. Please verify.");
       LOG.error(e.getMessage());
@@ -166,10 +166,10 @@ public abstract class GoraVertexInputFormat<
       LOG.warn("Querying all the data store.");
       sKey = null;
       eKey = null;
+    } else {
+      setStartKey(kFact.buildKey(sKey));
+      setEndKey(kFact.buildKey(eKey));
     }
-    kFact.setDataStore(getDataStore());
-    setStartKey(kFact.buildKey(sKey));
-    setEndKey(kFact.buildKey(eKey));
     Query tmpQuery = GoraUtils.getQuery(
         getDataStore(), getStartKey(), getEndKey());
     GORA_INPUT_FORMAT.setQuery(tmpQuery);
@@ -226,7 +226,8 @@ public abstract class GoraVertexInputFormat<
         this.vertex = transformVertex(this.getReadResults().get());
         RECORD_COUNTER++;
       } catch (Exception e) {
-        LOG.debug("Error transforming vertices.");
+        LOG.error("Error transforming vertices.");
+        LOG.error(e.getMessage());
         flg = false;
       }
       LOG.debug(RECORD_COUNTER + " were transformed.");

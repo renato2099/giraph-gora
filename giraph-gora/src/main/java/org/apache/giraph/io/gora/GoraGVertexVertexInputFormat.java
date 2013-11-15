@@ -84,7 +84,7 @@ public class GoraGVertexVertexInputFormat
           String keyVal = key.toString();
           String valVal = tmpGVertex.getEdges().get(key).toString();
           Edge<LongWritable, FloatWritable> edge;
-          if (!keyVal.contains("vertexId")) {
+          if (!keyVal.contains("vertexId") && !keyVal.contains("value")) {
             edge = EdgeFactory.create(
                 new LongWritable(Long.parseLong(keyVal)),
                 new FloatWritable(Float.parseFloat(valVal)));

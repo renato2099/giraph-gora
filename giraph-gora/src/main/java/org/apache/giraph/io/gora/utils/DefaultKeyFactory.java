@@ -18,7 +18,7 @@
 package org.apache.giraph.io.gora.utils;
 
 /**
- * Example class for defining a way to construct Gora keys. 
+ * Example class for defining a way to construct Gora keys.
  * Uses strings as keys inside Gora.
  */
 public class DefaultKeyFactory extends KeyFactory {

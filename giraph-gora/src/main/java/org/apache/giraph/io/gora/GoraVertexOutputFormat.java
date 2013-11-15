@@ -168,7 +168,7 @@ public abstract class GoraVertexOutputFormat<
         setDatastoreClass((Class<? extends DataStore>) dataStoreClass);
         setDataStore(createDataStore());
         if (getDataStore() != null) {
-          getLogger().debug("The data store has been created.");
+          getLogger().info("The output data store has been created.");
         }
       } catch (ClassNotFoundException e) {
         getLogger().error("Error while reading Gora Output parameters");

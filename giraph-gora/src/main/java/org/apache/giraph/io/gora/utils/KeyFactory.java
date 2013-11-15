@@ -34,7 +34,7 @@ public abstract class KeyFactory {
    * @param keyString the key object as a string.
    * @return the key object.
    */
-   public abstract Object buildKey(String keyString);
+  public abstract Object buildKey(String keyString);
 
   /**
    * Gets the data store used in this factory.

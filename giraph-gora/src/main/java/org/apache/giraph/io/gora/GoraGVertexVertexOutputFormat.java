@@ -70,7 +70,6 @@ public class GoraGVertexVertexOutputFormat
             new Utf8(edge.getTargetVertexId().toString()),
             new Utf8(edge.getValue().toString()));
       }
-      getLogger().debug("GoraObject created: " + tmpGVertex.toString());
       return tmpGVertex;
     }
 
